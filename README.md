@@ -86,6 +86,7 @@ python -m sales_points sample_data/fit_report_sample.csv \
 | `--rx-history` | no | Customer → most recent prior RX date. Needed for the 12-month new-customer test |
 | `--awarded-customers` | no | Customers that already used their one-time new-customer bonus |
 | `--honorariums` | no | Rep honorarium payouts for the month |
+| `--rep-roster` | no | Rep ID to full name. The Fit Report holds surnames only |
 
 Fit Report column headers change month to month, so the loader matches them
 loosely (`Fit Date`, `Date Fit`, `Fit Complete Date` all work). If the new-customer

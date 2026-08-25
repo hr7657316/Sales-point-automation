@@ -52,8 +52,11 @@ class PointEngine:
     def __init__(self, rulebook: RuleBook | None = None,
                  rx_history: dict | None = None,
                  awarded_customers: set | None = None,
-                 honorariums: dict | None = None):
+                 honorariums: dict | None = None,
+                 rep_names: dict | None = None):
         self.rules = rulebook or RuleBook.load()
+        # rep id -> full name, so rep-facing sheets are not just surnames
+        self.rep_names = {k.upper(): v for k, v in (rep_names or {}).items()}
         # customer key -> date of that customer's most recent prior RX
         self.rx_history = {k.upper(): v for k, v in (rx_history or {}).items()}
         # customers that already consumed their one-time new-customer bonus
@@ -252,6 +255,10 @@ class PointEngine:
 
     def _allocate(self, row: FitRow, total: int, result: RowResult) -> list:
         reps = parse_reps(row.rep, self.rules.settings.split_separator)
+        for rep in reps:
+            full_name = self.rep_names.get((rep.rep_id or "").upper())
+            if full_name:
+                rep.name = full_name
         if not reps:
             reps = [Rep(name="UNASSIGNED")]
             result.review_needed = True

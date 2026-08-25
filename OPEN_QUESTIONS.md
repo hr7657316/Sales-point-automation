@@ -98,6 +98,22 @@ not listed, so those rows score nothing. Is that deliberate or an omission?
 
 ---
 
+### 0d. Rep full names
+
+The Fit Report identifies reps by surname and ID only, in all seven months
+checked: `LOPICCOLO (M1-11-69)`, `LIPUT (M1-21-08)`, `THAPA (M1-11-31)`. There
+are no first names anywhere in the file.
+
+Point sheets go to the reps themselves, so they should carry proper names. The
+engine now accepts a roster (`--rep-roster`) mapping Rep ID to full name, and
+falls back to the surname for anyone not listed. Nothing is invented.
+
+**Question:** can we have the rep roster - each Rep ID with the rep's full name?
+Sixteen IDs appear across the seven months, plus the house accounts
+(`HOUSE EAST`, `HOUSE WEST`), which may want a different label entirely.
+
+---
+
 ### 1. FFW adjustment vs. the ancillary table — the two sources disagree
 
 The Master SOP (§5.2) gives this example:

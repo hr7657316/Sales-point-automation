@@ -88,3 +88,26 @@ def load_honorariums(path: Path) -> dict:
                 if key:
                     payouts[key] = payouts.get(key, 0.0) + amount
     return payouts
+
+
+def load_rep_roster(path: Path) -> dict:
+    """Rep ID -> the rep's full name, for sheets people actually read.
+
+    The Fit Report stores only a surname and an ID (``LOPICCOLO (M1-11-69)``),
+    so full names have to come from a roster the company maintains. Without one
+    the surname is used as-is rather than guessed at.
+    """
+    roster: dict = {}
+    if not path or not Path(path).exists():
+        return roster
+    with open(path, newline="", encoding="utf-8-sig") as handle:
+        reader = csv.DictReader(handle)
+        id_col = _find_column(reader.fieldnames, "repid", "rep_id", "id")
+        name_col = _find_column(reader.fieldnames, "fullname", "name", "repname",
+                                "rep")
+        for raw in reader:
+            rep_id = (raw.get(id_col) or "").strip() if id_col else ""
+            full = (raw.get(name_col) or "").strip() if name_col else ""
+            if rep_id and full:
+                roster[rep_id.upper()] = full
+    return roster

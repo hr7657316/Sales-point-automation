@@ -11,6 +11,7 @@ from .loaders import (
     load_awarded_customers,
     load_fit_report,
     load_honorariums,
+    load_rep_roster,
     load_rx_history,
 )
 from .report import (
@@ -42,6 +43,8 @@ def build_parser() -> argparse.ArgumentParser:
                         help="CSV of customers that already used their new-customer bonus")
     parser.add_argument("--honorariums", type=Path, default=None,
                         help="CSV of rep honorarium payouts for the month")
+    parser.add_argument("--rep-roster", type=Path, default=None,
+                        help="CSV mapping Rep ID to the rep's full name")
     return parser
 
 
@@ -59,6 +62,7 @@ def main(argv=None) -> int:
         rx_history=load_rx_history(args.rx_history),
         awarded_customers=load_awarded_customers(args.awarded_customers),
         honorariums=load_honorariums(args.honorariums),
+        rep_names=load_rep_roster(args.rep_roster),
     )
     results, summaries = engine.run(rows)
 

@@ -321,3 +321,34 @@ def test_post_surgical_still_reads_as_surgical_family(engine):
                                        type="Post-Surgical"))
     assert result.rule_used == "TCT_WC_POST_SURGICAL"
     assert result.base_points == 500
+
+
+# --- Rep roster ------------------------------------------------------------
+
+def test_full_name_used_when_the_roster_supplies_one():
+    """The Fit Report holds only surnames, so full names come from a roster."""
+    engine = PointEngine(rep_names={"M1-11-69": "Maria LoPiccolo"})
+    result = evaluate(engine, make_row())
+    rep, _points = result.rep_allocations[0]
+    assert rep.name == "Maria LoPiccolo"
+    assert rep.rep_id == "M1-11-69"
+
+
+def test_surname_kept_when_the_rep_is_not_in_the_roster():
+    engine = PointEngine(rep_names={"M1-99-99": "Someone Else"})
+    result = evaluate(engine, make_row())
+    assert result.rep_allocations[0][0].name == "LOPICCOLO"
+
+
+def test_roster_resolves_both_sides_of_a_split():
+    engine = PointEngine(rep_names={"M1-1": "Ada Lovelace", "M1-2": "Grace Hopper"})
+    result = evaluate(engine, make_row(rep="A (M1-1) / B (M1-2)"))
+    assert [rep.name for rep, _pts in result.rep_allocations] == [
+        "Ada Lovelace", "Grace Hopper",
+    ]
+
+
+def test_roster_lookup_is_case_insensitive_on_the_id():
+    engine = PointEngine(rep_names={"m1-11-69": "Maria LoPiccolo"})
+    result = evaluate(engine, make_row())
+    assert result.rep_allocations[0][0].name == "Maria LoPiccolo"
