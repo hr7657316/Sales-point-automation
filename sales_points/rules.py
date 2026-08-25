@@ -61,8 +61,8 @@ class PointRule:
     base_points_auto: int
     priority: int
     source: str = ""
-    effective_from: Optional[datetime.date] = None
-    effective_to: Optional[datetime.date] = None
+    effective_from: datetime.date | None = None
+    effective_to: datetime.date | None = None
 
     def applies_on(self, when) -> bool:
         """Rates change between commission periods; blank bounds mean always.
