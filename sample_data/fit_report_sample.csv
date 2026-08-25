@@ -1,0 +1,12 @@
+Patient,Pro,Rep,Team,Insurance,Type,Date RX Rcvd,Fit Date,Patient Status,DOC,Product,Insurance Status,Fit Status,BMV,Garment Fitted,New Customer
+P-1001,SMITH ORTHO,LOPICCOLO (M1-11-69),East,Work Comp,Surgical,08/02/2026,08/05/2026,Existing,DR SMITH,TCT,Eligible,FIT,No,Yes,No
+P-1002,SMITH ORTHO,LOPICCOLO (M1-11-69),East,Work Comp,Post-Surgical,08/03/2026,08/06/2026,Existing,DR SMITH,TCT,Eligible,FIT,No,Yes,No
+P-1003,JONES CLINIC,LOPICCOLO (M1-11-69) / HOUSE EAST (M1-21-0),East,MI Auto,Non-Litigated,08/04/2026,08/07/2026,Existing,DR JONES,MZ,Eligible,FIT,No,Yes,No
+P-1004,*ANCILLARY GRP,MATT R (M1-12-34),West,Work Comp,Non-Surgical,08/05/2026,08/08/2026,Existing,DR ADAMS,TCT,Eligible,FIT,No,Yes,No
+P-1005,*ANCILLARY GRP,MATT R (M1-12-34),West,PA Auto,Auto,08/06/2026,08/09/2026,Existing,DR ADAMS,MZ,Eligible,FIT,No,No,No
+P-1006,BROWN SPINE,TAYLOR (M1-13-07),West,Work Comp,Surgical,08/07/2026,08/10/2026,New,DR BROWN,TCT,Eligible,FIT,Yes,Yes,Yes
+P-1007,NEWCO ORTHO,TAYLOR (M1-13-07),West,Work Comp,Surgical,08/08/2026,08/11/2026,New,DR NEWCO,TCT,Eligible,FIT,No,Yes,Yes
+P-1007,NEWCO ORTHO,TAYLOR (M1-13-07),West,Work Comp,,08/08/2026,08/12/2026,New,DR NEWCO,MZ,Eligible,FIT,No,Yes,No
+P-1008,GREEN CARE,PETE (M1-14-22),East,Medicare,,08/09/2026,08/13/2026,Existing,DR GREEN,Back Brace,Eligible,FIT,No,Yes,No
+P-1009,GREEN CARE,PETE (M1-14-22),East,Commercial,,08/10/2026,08/14/2026,Existing,DR GREEN,MZ,Eligible,In Transit,No,Yes,No
+P-1010,GREEN CARE,PETE (M1-14-22),East,Blue Sky Mutual,Unknown Scenario,08/11/2026,08/15/2026,Existing,DR GREEN,Widget,Pending,FIT,No,Yes,No

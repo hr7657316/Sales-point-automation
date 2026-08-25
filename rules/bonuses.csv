@@ -1,0 +1,4 @@
+bonus_id,description,points,applies_to_products,requires_new_customer,excludes_ancillary,doubles_in_dec_jan,scope,source
+NEW_CUSTOMER,New customer bonus - no RX in the last 12 months; one time per customer,500,TCT|MZ,yes,yes,yes,per_customer,BONUSES & EXCEPTIONS
+FIVE_PLUS_NEW_CUSTOMER,5 or more new-customer Fit Completes in the first 30 calendar days,1000,TCT|MZ,yes,yes,yes,per_rep_month,BONUSES & EXCEPTIONS
+GOLD_PAIR,Gold Pair - TCT and MZ both Fit within the same 30 calendar days,50,TCT|MZ,no,yes,no,per_patient,BONUSES & EXCEPTIONS

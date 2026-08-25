@@ -1,0 +1,9 @@
+setting,value,description
+fit_status_values,fit|fit complete|fitted,Row only earns points when the fit status is one of these values
+ancillary_marker,*,PRO field containing this marker means the provider is Ancillary / FFW
+honorarium_deduction_rate,0.5,Fraction of the honorarium payout deducted from the rep's points
+honorarium_points_per_dollar,1.0,"Dollars-to-points conversion for the honorarium deduction. OPEN QUESTION - confirm with Allissa"
+five_plus_window_days,30,Calendar-day window used for the 5+ new-customer bonus
+gold_pair_window_days,30,Calendar-day window in which a TCT and an MZ must both be Fit
+double_bonus_months,12|1,Months (numeric) in which new-account bonuses are doubled
+split_separator,/,Character separating multiple reps in the Rep column

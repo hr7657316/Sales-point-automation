@@ -1,0 +1,11 @@
+line-length = 100
+target-version = "py310"
+
+[lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "C4", "RUF", "DTZ"]
+ignore = [
+    # Fit dates, RX dates and payroll deadlines are calendar dates with no
+    # timezone, so naive date objects are the correct representation here.
+    "DTZ007",
+    "DTZ011",
+]
