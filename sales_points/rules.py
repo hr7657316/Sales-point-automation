@@ -7,6 +7,7 @@ exported without touching any code. Nothing here writes back to a spreadsheet.
 from __future__ import annotations
 
 import csv
+import datetime
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -60,6 +61,23 @@ class PointRule:
     base_points_auto: int
     priority: int
     source: str = ""
+    effective_from: Optional[datetime.date] = None
+    effective_to: Optional[datetime.date] = None
+
+    def applies_on(self, when) -> bool:
+        """Rates change between commission periods; blank bounds mean always.
+
+        A rule with bounds cannot be evaluated without a date, so it does not
+        apply - the row is then flagged rather than priced from the wrong
+        period.
+        """
+        if self.effective_from is None and self.effective_to is None:
+            return True
+        if when is None:
+            return False
+        if self.effective_from and when < self.effective_from:
+            return False
+        return not (self.effective_to and when > self.effective_to)
 
     def matches(self, product: str, insurance: str, type_: str,
                 insurance_status: str, is_ancillary: bool) -> bool:
@@ -137,6 +155,13 @@ def _as_bool(value: str) -> bool:
     return (value or "").strip().lower() in {"yes", "y", "true", "1"}
 
 
+def _as_date(value: str):
+    text = (value or "").strip()
+    if not text:
+        return None
+    return datetime.datetime.strptime(text, "%Y-%m-%d").date()
+
+
 def _as_int(value: str, default: int = 0) -> int:
     text = (value or "").strip()
     if not text:
@@ -188,6 +213,8 @@ class RuleBook:
                         base_points_auto=_as_int(row.get("base_points_auto")),
                         priority=_as_int(row.get("priority"), 50),
                         source=row.get("source", "").strip(),
+                        effective_from=_as_date(row.get("effective_from", "")),
+                        effective_to=_as_date(row.get("effective_to", "")),
                     )
                 )
         return rules
@@ -251,8 +278,11 @@ class RuleBook:
         return settings
 
     def find(self, product: str, insurance: str, type_: str,
-             insurance_status: str, is_ancillary: bool) -> PointRule | None:
+             insurance_status: str, is_ancillary: bool,
+             on=None) -> PointRule | None:
         for rule in self.point_rules:
+            if not rule.applies_on(on):
+                continue
             if rule.matches(product, insurance, type_, insurance_status, is_ancillary):
                 return rule
         return None

@@ -147,36 +147,35 @@ class PointEngine:
 
     def _gold_pair_bonus(self, row: FitRow, result: RowResult,
                          gold_pair_state: dict) -> int:
-        """Award once per patient when a TCT and an MZ are Fit within 30 days."""
+        """Award once per patient with both a TCT and an MZ fit this month.
+
+        Validated against seven paid months (Jan-Jul 2026): the pair is simply
+        both product families appearing for the same patient in the same
+        month's report - MZ ONLY products count as MZ, ancillary rows do not
+        count, and no date window is involved.
+        """
         bonus = self.rules.bonus("GOLD_PAIR")
         if not bonus:
             return 0
-        product = (row.product or "").lower()
-        if "tct" in product:
+        product = (row.product or "").upper()
+        if product.startswith("TCT"):
             family = "TCT"
-        elif "mz" in product:
+        elif product.startswith("MZ"):
             family = "MZ"
         else:
             return 0
         if bonus.excludes_ancillary and result.is_ancillary:
             return 0
 
-        patient = (row.patient or "").strip().upper()
-        fit_date = row.fit_date
-        if not patient or not fit_date:
+        patient = (row.patient or "").split("\n")[0].strip().upper()[:40]
+        if not patient:
             return 0
 
-        state = gold_pair_state.setdefault(patient, {"TCT": None, "MZ": None,
-                                                     "awarded": False})
-        state[family] = fit_date
-        if state["awarded"]:
-            return 0
-
-        other = state["MZ"] if family == "TCT" else state["TCT"]
-        if other is None:
-            return 0
-        window = timedelta(days=self.rules.settings.gold_pair_window_days)
-        if abs(fit_date - other) > window:
+        state = gold_pair_state.setdefault(
+            patient, {"TCT": False, "MZ": False, "awarded": False}
+        )
+        state[family] = True
+        if state["awarded"] or not (state["TCT"] and state["MZ"]):
             return 0
 
         state["awarded"] = True
@@ -186,7 +185,8 @@ class PointEngine:
     # ------------------------------------------------------------------
     # Row evaluation
     # ------------------------------------------------------------------
-    def evaluate_row(self, row: FitRow, gold_pair_state: dict) -> RowResult:
+    def evaluate_row(self, row: FitRow, gold_pair_state: dict,
+                     period_ref=None) -> RowResult:
         result = RowResult(row=row)
 
         # Step 1: points exist only for devices actually marked Fit.
@@ -219,7 +219,7 @@ class PointEngine:
         type_text = _match_type(row)
         rule = self.rules.find(
             row.product, row.insurance, type_text, row.insurance_status,
-            result.is_ancillary,
+            result.is_ancillary, on=period_ref or row.date_rx_received,
         )
         if rule is None:
             result.rule_used = NO_RULE_MATCH
@@ -286,7 +286,15 @@ class PointEngine:
             rows, key=lambda r: (r.fit_date or date.max, r.row_number)
         )
         gold_pair_state: dict = {}
-        results = [self.evaluate_row(row, gold_pair_state) for row in ordered]
+        # Rates are versioned by commission period, and the whole report is
+        # priced by its month - not row by row, since RX dates often fall in
+        # the month before the fit. The latest RX date identifies the month.
+        rx_dates = [r.date_rx_received for r in ordered if r.date_rx_received]
+        period_ref = max(rx_dates) if rx_dates else None
+        results = [
+            self.evaluate_row(row, gold_pair_state, period_ref)
+            for row in ordered
+        ]
         summaries = self._summarise(results)
         return results, summaries
 

@@ -2,6 +2,50 @@
 
 ---
 
+## SOLVED SINCE: Gold Pair, rate periods, honorarium conversion
+
+The June and July tabs of the paid worksheet carry the **Gold Pair patients by
+name** - 22 of them across two months. Cross-referencing every named patient
+against the fit reports settled the rule empirically:
+
+> A Gold Pair is a patient with both a TCT row and an MZ-family row (MZ ONLY
+> products count) in the **same month's report**, non-ancillary. No date
+> window is involved.
+
+Tested against all seven paid months - 9, 7, 8, 10, 11, 7, 15 - it matches
+**7 of 7 exactly**. Question 5 is closed.
+
+**Rates are versioned by period.** The worksheet header reads "06-01-2026 --
+03-31-2027": from June 2026 the ancillary lines pay 300\0, 200\0, 100\0 and
+Back Brace pays 300, while January-May paid 200\100 and 250. So the cheat
+sheet and the paid sheets were both right, for different periods. The rule
+table now carries effective dates and the whole report is priced by its month.
+
+**Honorarium: $1 = 1 point confirmed.** July's total reads "24,050 - 500
+POINTS (HONORARIUM)": a 50% deduction of 500 points on a $1,000 payout.
+Question 2 is closed.
+
+Current standing against the paid worksheet, all rules included:
+
+| Month | Paid | Engine | |
+| --- | --- | --- | --- |
+| January | 14,450 | 14,450 | exact |
+| February | 12,850 | 12,850 | exact |
+| March | 19,050 | 18,750 | -300 |
+| April | 15,350 | 15,800 | +450 |
+| May | 18,050 | 18,250 | +200 |
+| June | 18,750 | 17,700 | -1,050 |
+| July | 23,050 | 22,425 | -625 |
+| **Seven months** | **121,550** | **120,225** | **98.9%** |
+
+The remaining differences trace to named single rows: the March P2A row, the
+April/May surgical-date edge cases, June/July rows of `MZ ONLY (GARMENT NOT
+ELIGIBLE AUTO)` from starred providers, and how the July split account was
+valued at 2,200 (the engine finds 1,750 across the same rows).
+
+
+---
+
 ## VALIDATED AGAINST FIVE PAID MONTHS
 
 `Paul Lopiccolo Monthly Points Worksheet`, January to May 2026 - the sheets

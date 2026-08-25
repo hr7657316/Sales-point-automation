@@ -150,7 +150,7 @@ def rows_from_grid(grid: list) -> list:
         patient_status = get("patient_status")
         fit_rows.append(
             FitRow(
-                patient=get("patient")[:60] or f"ROW-{offset}",
+                patient=get("patient").split("\n")[0][:60] or f"ROW-{offset}",
                 pro=get("pro"),
                 rep=get("rep"),
                 team=get("team"),

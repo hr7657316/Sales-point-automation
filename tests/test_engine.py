@@ -24,6 +24,7 @@ def make_row(**kwargs) -> FitRow:
         "insurance": "Work Comp",
         "type": "Surgical",
         "fit_date": date(2026, 8, 5),
+        "date_rx_received": date(2026, 3, 1),
         "doc": "DR SMITH",
         "product": "TCT",
         "insurance_status": "Eligible",
@@ -191,34 +192,47 @@ def test_new_customer_bonus_withheld_without_rx_history():
     assert result.bonus_points == 0
 
 
-def test_gold_pair_bonus_when_tct_and_mz_fit_within_30_days(engine):
+def test_gold_pair_awarded_when_tct_and_mz_appear_in_the_same_month(engine):
+    """Validated on seven paid months: the pair is same-month, no date window."""
     state = {}
-    tct = engine.evaluate_row(make_row(product="TCT", fit_date=date(2026, 8, 1)), state)
-    mz = engine.evaluate_row(
-        make_row(product="MZ", type="", fit_date=date(2026, 8, 20)), state
-    )
+    tct = engine.evaluate_row(make_row(product="TCT"), state)
+    mz = engine.evaluate_row(make_row(product="MZ", type=""), state)
     assert tct.bonus_points == 0
     assert mz.bonus_points == 50
 
 
-def test_gold_pair_bonus_not_awarded_outside_30_day_window(engine):
+def test_mz_only_products_count_toward_a_gold_pair(engine):
     state = {}
-    engine.evaluate_row(make_row(product="TCT", fit_date=date(2026, 8, 1)), state)
+    engine.evaluate_row(make_row(product="TCT"), state)
     mz = engine.evaluate_row(
-        make_row(product="MZ", type="", fit_date=date(2026, 10, 1)), state
+        make_row(product="MZ ONLY (GARMENT NOT LISTED ON RX) (LT)",
+                 insurance="PA Auto", type="PA AUTO"), state
     )
-    assert mz.bonus_points == 0
+    assert any(b.startswith("GOLD_PAIR") for b in mz.bonuses_applied)
 
 
-def test_gold_pair_bonus_excluded_for_ancillary(engine):
+def test_gold_pair_awarded_once_per_patient(engine):
+    state = {}
+    engine.evaluate_row(make_row(product="TCT"), state)
+    first = engine.evaluate_row(make_row(product="MZ", type=""), state)
+    second = engine.evaluate_row(make_row(product="MZ", type=""), state)
+    assert first.bonus_points == 50
+    assert second.bonus_points == 0
+
+
+def test_gold_pair_needs_both_families(engine):
+    state = {}
+    a = engine.evaluate_row(make_row(product="MZ", type=""), state)
+    b = engine.evaluate_row(make_row(product="MZ", type=""), state)
+    assert a.bonus_points == 0 and b.bonus_points == 0
+
+
+def test_gold_pair_excluded_for_ancillary(engine):
     state = {}
     engine.evaluate_row(
-        make_row(pro="*ANC", product="TCT", type="Non-Surgical",
-                 fit_date=date(2026, 8, 1)), state
+        make_row(pro="*ANC", product="TCT", type="Non-Surgical"), state
     )
-    mz = engine.evaluate_row(
-        make_row(pro="*ANC", product="MZ", type="", fit_date=date(2026, 8, 5)), state
-    )
+    mz = engine.evaluate_row(make_row(pro="*ANC", product="MZ", type=""), state)
     assert mz.bonus_points == 0
 
 
