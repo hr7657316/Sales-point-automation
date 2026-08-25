@@ -94,9 +94,16 @@ def is_fit(patient_status: str) -> bool:
     return "FIT" in text and "INCOMPLETE" not in text
 
 
-def is_surgical(urgency: str) -> bool:
-    """The URGENCY column carries SURGICAL alongside dispatch values."""
-    return SURGICAL_MARKER in (urgency or "").upper()
+def is_surgical(urgency: str, dos: str = "") -> bool:
+    """Whether the case is surgical.
+
+    DOS is the Date Of Surgery. A real date in it means there was a surgery,
+    which is what the rules mean by "DOS or non DOS (A or C)". The URGENCY
+    column also carries a SURGICAL marker and is honoured as well.
+    """
+    if SURGICAL_MARKER in (urgency or "").upper():
+        return True
+    return parse_date(dos) is not None
 
 
 def is_open_or_litigated(dos: str) -> bool:
@@ -161,7 +168,7 @@ def rows_from_grid(grid: list) -> list:
                 product=get("product"),
                 insurance_status=get("insurance_status"),
                 fit_status="FIT" if is_fit(patient_status) else patient_status,
-                surgical=is_surgical(get("urgency")),
+                surgical=is_surgical(get("urgency"), get("dos_code")),
                 row_number=offset,
                 raw={},
             )

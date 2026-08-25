@@ -192,3 +192,29 @@ def test_ancillary_mz_auto_with_no_garment_uses_the_standard_250():
     result = engine.evaluate_row(parsed, {})
     assert result.is_ancillary is False
     assert result.base_points == 250
+
+
+# --- DOS is the Date Of Surgery -------------------------------------------
+
+@pytest.mark.parametrize(
+    "urgency,dos,expected",
+    [
+        ("SURGICAL", "A", True),      # explicit marker wins
+        ("", "04-10-26", True),       # a real surgery date means surgical
+        ("IMMEDIATE", "03-19-26", True),
+        ("", "A", False),             # no surgery date
+        ("IMMEDIATE", "C", False),
+        ("", "", False),
+    ],
+)
+def test_surgical_from_surgery_date_or_marker(urgency, dos, expected):
+    assert is_surgical(urgency, dos) is expected
+
+
+def test_tct_with_a_surgery_date_scores_the_surgical_rate():
+    """Validated on five paid months: a dated DOS is a surgical case."""
+    engine = PointEngine()
+    parsed = rows_from_grid(grid(row(dos="04-10-26", urgency="")))[0]
+    result = engine.evaluate_row(parsed, {})
+    assert result.rule_used == "TCT_WC_SURGICAL"
+    assert result.base_points == 700

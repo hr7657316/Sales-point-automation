@@ -2,111 +2,74 @@
 
 ---
 
-## VALIDATED AGAINST A PAID SHEET
+## VALIDATED AGAINST FIVE PAID MONTHS
 
-`Paul Lopiccolo Monthly Points Worksheet`, MARCH 2026 tab - the sheet that was
-actually paid. Total paid: **19,050 points**. The engine now produces **18,350
-on the same month, 96.3%, with no rows flagged.**
+`Paul Lopiccolo Monthly Points Worksheet`, January to May 2026 - the sheets
+that were actually paid. Gold Pair is excluded from these figures because the
+rule cannot yet be derived (see below).
 
-| Rule | Paid | Engine | |
+| Month | Paid (ex Gold Pair) | Engine | Difference |
 | --- | --- | --- | --- |
-| TCT Work Comp Surgical | 3 / 2100 | 3 / 2100 | match |
-| TCT Non-Surg WC/Auto open or litigated | 15 / 4500 | 15 / 4500 | match |
-| MZ Work Comp | 17 / 8500 | 16 / 8000 | 1 row |
-| MZ PA, MI, FL Auto | 3 / 750 | 3 / 750 | match |
-| Ancillary TCT Surgical Post-OP | 1 / 200 | 1 / 200 | match |
-| Ancillary TCT Non-Surgical | 6 / 1200 | 6 / 1200 | match |
-| Ancillary MZ Work Comp | 7 / 1400 | 8 / 1600 | 1 row |
-| Gold Pair | 8 / 400 | not scored | needs a fit date |
+| January | 14,000 | 14,000 | **exact** |
+| February | 12,500 | 12,500 | **exact** |
+| March | 18,650 | 18,350 | -300 |
+| April | 14,850 | 15,300 | +450 |
+| May | 17,500 | 17,700 | +200 |
+| **Five months** | **77,500** | **77,850** | **+350** |
 
-### What the paid sheet corrected
+No rows flagged in any of the five months.
 
-**The DOS column is not a date.** It holds `A` or `C` on 182 of 231 March rows.
-The rules call this "DOS or non DOS (A or C)" and it marks the open or
-litigated case. This single discovery resolved the entire surgical question:
-a TCT row is surgical when URGENCY says so, and open/litigated at 300 when DOS
-is A or C. All 25 of Lopiccolo's TCT rows then matched the paid sheet exactly.
+### DOS is the Date Of Surgery
 
-**Ancillary rates were wrong in the cheat sheet.** The paid sheet shows
-`200\100` (work comp \ auto) on every ancillary line. The cheat sheet said
-300/200/100 with 0 for auto. The engine was overpaying every ancillary row.
+The decisive decode. The `DOS` column holds either a date or the letter `A` or
+`C`. It is the Date Of Surgery, which makes the rulebook's phrase "DOS or non
+DOS (A or C)" literal:
 
-**Back Brace is 250, not 300.**
+- a **date** in DOS means there was a surgery, so the surgical rate applies
+- **A or C** means there was none, so the open or litigated rate of 300 applies
 
-**TENS is counted with MZ**, matching the sheet's own "MZ/TENS" line.
+Tested against five paid months, this reproduces the TCT split on both counts
+in January, February and March exactly, and is off by one row in April and May.
+It is a better signal than the `URGENCY` marker, which the reader still honours
+as well.
 
-**"Garment not listed" lives in the product description**, not in a column of
-its own, which is what triggers the ancillary MZ Auto exception at 250.
+## What is still not right, and why we are not forcing it
 
-### The 700 points still unaccounted for
+### Gold Pair - the rule cannot be derived from the data
 
-- **400** - Gold Pair. The rule needs both a TCT and an MZ fit within 30
-  calendar days, but no column in the Fit Report reliably holds a fit date
-  (DOS is the A/C code). **Which column is the fit date?**
-- **300** - one row typed `PA WC P2A` from a starred provider. Allissa scored
-  it as standard MZ Work Comp, not ancillary. **Does a P2A/FP2A case override
-  the ancillary marker?**
+Paid counts were 9, 7, 8, 10, 11 across the five months. Four different
+mechanical readings were tested against all five:
 
-### Categories on the paid sheet that are in no rulebook
-
-MISx (SurGenTec, Tenon, Omnia, Eliquence), Work Comp Pharmacy, Pharmacy RX,
-Wound Kit, TCT AT sold, Recruit and install a 1099 contractor, and an entire
-**FP2A section with negative points** (`-250` PA WC TCT, `-100` PA WC MZ or TT,
-`-250` licensed TCT unit, `-250` TCT patient demo, `-75` Sport-Z demo).
-
-Deductions of that kind are not in the cheat sheet at all. **Do they need to be
-in scope?**
-
-
-These are the points where the source documents are ambiguous or disagree. Each
-one is implemented against a stated assumption so the engine runs today, but each
-needs confirmation before a real payroll month is calculated from it.
-
-Nothing here was resolved by guessing inside the calculation — where a row cannot
-be decided, it is flagged into `review_queue.csv` instead.
-
----
-
-### 0. Post-surgical vs non-surgical on TCT rows — BLOCKING
-
-Validated against the real **27) MARCH 2026 FITTINGS** export (231 rows).
-
-The surgical marker was found: it lives in the **`URGENCY / INCOMPLETE NOTES`**
-column, which holds exactly three values — blank, `IMMEDIATE`, and `SURGICAL`.
-`SURGICAL` appears on TCT rows only (20 of them in March), and the engine now
-reads it, scoring those at 700.
-
-But the point rules need a **three-way** split:
-
-| Scenario | Points |
+| Interpretation | Months matched |
 | --- | --- |
-| WC Surgical | 700 |
-| WC Post-Surgical, MD/DO/PA/NP/OPM, <30 day post-op | 500 |
-| WC Non-Surgical | 100 |
+| excluding ancillary, one month at a time | 1 of 5 |
+| excluding ancillary, pairs spanning months | 0 of 5 |
+| including ancillary, one month at a time | 2 of 5 |
+| including ancillary, pairs spanning months | 1 of 5 |
 
-The column only distinguishes surgical from everything else. That leaves **66
-TCT rows in March** that cannot be scored, because there is no way to tell a
-500 from a 100 — a 5x difference.
+Four candidate date columns were also tested; none matched consistently. March
+appearing to match at 8 was a coincidence, which only five months of data
+exposed.
 
-**Question:** for a TCT Work Comp row that is not marked `SURGICAL`, how do you
-decide post-surgical vs non-surgical? Is it on the RX, is it the `30 DAY RX` in
-the product name, or does it come from another report?
+**No mechanical interpretation reproduces the paid counts.** Rather than tune
+the window until one month agrees, the rule is left unimplemented.
 
-This is the single biggest remaining blocker: it is roughly 29% of the month.
+**Question:** how is a Gold Pair actually counted? Which two dates have to fall
+within the 30 days, do ancillary patients count, and can a pair span a month
+boundary?
 
----
+### The remaining rows, month by month
 
-### 0b. Products with no rule
-
-Also surfaced by the March export:
-
-- **`LSO`** (4 rows) — a lumbar-sacral orthosis. Should this use the Back Brace
-  rule (300 WC/Medicare)? Not assumed, because it is a guess.
-- **`PERSON INJURY` / `PERSONAL INJURY`** (2 rows) — there is no personal-injury
-  rule anywhere in the cheat sheet. What should these score?
-- **`MZ ONLY (GARMENT NOT LISTED ON RX)` + `PA AUTO`, ancillary** (5 rows) —
-  this looks exactly like the ancillary MZ Auto "no garment fitted" exception,
-  which would make it the standard 250. Is that reading correct?
+- **May, +200.** May paid one row as *WC Post-Surgical (<30 Post-op)* at 500;
+  the engine scored it surgical at 700. Distinguishing the two needs the fit
+  date and the provider type (MD/DO/PA/NP/DPM). **Which column holds the fit
+  date, and where does the provider type come from?**
+- **April, +450.** One row with a surgery date was paid at 300 rather than 700.
+  Possibly the surgery was more than 30 days before the fit. Same missing
+  input as above.
+- **March, -300.** One row typed `PA WC P2A` from a starred provider was paid
+  as standard MZ Work Comp rather than ancillary. **Does a P2A case override
+  the ancillary marker?**
 
 ---
 
