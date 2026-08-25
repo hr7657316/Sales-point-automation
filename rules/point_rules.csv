@@ -1,9 +1,9 @@
 rule_id,description,product_any,ancillary,insurance_any,type_any,type_none,insurance_status_any,base_points_wc,base_points_auto,priority,source
 TCT_WC_SURGICAL,TCT Work Comp Surgical,TCT,no,work comp|wc,surgical,post-surgical|post surgical|post-op|post op|non-surgical|nonsurgical,,700,700,90,POINT RULES
 TCT_WC_POST_SURGICAL,TCT WC Post-Surgical MD/DO/PA/NP/OPM (<30 post-op),TCT,no,work comp|wc,post-surgical|post surgical|post-op|post op,,,500,500,95,POINT RULES
-TCT_MICH_AUTO_NON_LITIGATED,TCT Mich Auto DOS or non DOS (NON-Litigated),TCT,no,michigan auto|mich auto|mi auto,,litigated,,500,500,85,POINT RULES
-TCT_NONSURG_WC_AUTO_LITIGATED,TCT Non-Surgical WC & Auto open or Litigated DOS or non DOS (A or C),TCT,no,work comp|wc|auto,open|litigated,,,300,300,80,POINT RULES
-TCT_WC_NONSURG_TRICARE_USDL_COLD,TCT WC Non-Surgical / Tri-care / USDL / Cold Therapy,TCT,no,work comp|wc|tri-care|tricare|usdl,non-surgical|nonsurgical|cold therapy,,,100,100,70,POINT RULES
+TCT_MICH_AUTO_NON_LITIGATED,TCT Mich Auto DOS or non DOS (NON-Litigated),TCT,no,michigan auto|mich auto|mi auto,,litigated|litigation,,500,500,85,POINT RULES
+TCT_NONSURG_WC_AUTO_LITIGATED,TCT Non-Surgical WC & Auto open or Litigated DOS or non DOS (A or C),TCT,no,work comp|wc|auto,open|litigated|litigation,,,300,300,80,POINT RULES
+TCT_WC_NONSURG_TRICARE_USDL_COLD,TCT WC Non-Surgical / Tri-care / USDL / Cold Therapy,TCT|Cold Therapy,no,work comp|wc|tri-care|tricare|usdl,non-surgical|nonsurgical|cold therapy,,,100,100,70,POINT RULES
 MZ_OH_WC_RENTAL_TRIAL,MZ / OH Work Comp 13 Month Rental OR Trial,MZ,no,oh work comp|ohio work comp|oh wc,rental|trial|13 month,,,50,50,95,POINT RULES
 MZ_PA_MI_FL_AUTO,"MZ PA, MI, FL Auto",MZ,no,pa auto|mi auto|fl auto|pennsylvania auto|michigan auto|mich auto|florida auto,,,,250,250,90,POINT RULES
 MZ_WORK_COMP,MZ Work Comp,MZ,no,work comp|wc,,,,500,500,80,POINT RULES
@@ -13,5 +13,5 @@ BONE_STIM_OR_LASER,Bone Stim or Laser,Bone Stim|Bone Stim/Laser|Laser,no,,,,,500
 BACK_BRACE_WC_MEDICARE,Back Brace WC or Medicare,Back Brace,no,work comp|wc|medicare,,,,300,300,60,POINT RULES
 ANC_TCT_WC_SURGICAL_POST_OP,Ancillary TCT WC Surgical - Post OP (<30 day post op),TCT,yes,,surgical|post-surgical|post surgical|post-op|post op,non-surgical|nonsurgical,,300,0,90,POINT RULES
 ANC_TCT_WC_NON_SURGICAL,Ancillary TCT WC Non-Surgical,TCT,yes,,non-surgical|nonsurgical,,,200,0,80,POINT RULES
-ANC_COLD_THERAPY,Ancillary Cold Therapy (Hot or Cold),TCT|DME|DME/Ancillary,yes,,cold therapy,,,100,0,95,POINT RULES
+ANC_COLD_THERAPY,Ancillary Cold Therapy (Hot or Cold),TCT|DME|DME/Ancillary|Cold Therapy,yes,,cold therapy,,,100,0,95,POINT RULES
 ANC_MZ_WORK_COMP,Ancillary MZ Work Comp,MZ,yes,work comp|wc,,,,300,0,80,POINT RULES

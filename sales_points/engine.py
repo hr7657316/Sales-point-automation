@@ -19,6 +19,18 @@ NOT_FIT = "NOT_FIT"
 BMV_OVERRIDE = "BMV_OVERRIDE"
 ANCILLARY_MZ_AUTO_EXCEPTION = "ANCILLARY_MZ_AUTO_EXCEPTION"
 NO_RULE_MATCH = "NO_RULE_MATCH"
+SURGICAL_MARKER = "SURGICAL"
+
+
+def _match_type(row: FitRow) -> str:
+    """Text the Type conditions match against.
+
+    The Fit Report keeps the surgical marker in a separate column, so it is
+    folded in here rather than being lost.
+    """
+    if row.surgical:
+        return f"{row.type} {SURGICAL_MARKER}".strip()
+    return row.type
 
 
 def _is_auto(row: FitRow) -> bool:
@@ -197,8 +209,9 @@ class PointEngine:
             result.bonuses_applied.append(ANCILLARY_MZ_AUTO_EXCEPTION)
 
         # Steps 1-4 + 7: find the rule and read its base points.
+        type_text = _match_type(row)
         rule = self.rules.find(
-            row.product, row.insurance, row.type, row.insurance_status,
+            row.product, row.insurance, type_text, row.insurance_status,
             result.is_ancillary,
         )
         if rule is None:
@@ -214,11 +227,11 @@ class PointEngine:
             result.rep_allocations = self._allocate(row, 0, result)
             return result
 
-        result.base_points = rule.points_for(row.insurance, row.type)
+        result.base_points = rule.points_for(row.insurance, type_text)
         result.rule_used = rule.rule_id
         result.explanation = (
             f"{rule.description} ({rule.rule_id}) matched on Product='{row.product}', "
-            f"Insurance='{row.insurance}', Type='{row.type}'"
+            f"Insurance='{row.insurance}', Type='{type_text}'"
             f"{', Ancillary provider (PRO contains *)' if result.is_ancillary else ''}"
             f" -> {result.base_points} base points."
         )

@@ -62,7 +62,7 @@ a rep or RSM can see exactly why a number came out the way it did.
 ## Running it
 
 ```bash
-python -m sales_points path/to/monthly_fit_report.csv \
+python -m sales_points "27) MARCH 2026 FITTINGS.xlsx" \
   --rx-history        path/to/rx_history.csv \
   --awarded-customers path/to/awarded_customers.csv \
   --honorariums       path/to/honorariums.csv \
@@ -82,7 +82,7 @@ python -m sales_points sample_data/fit_report_sample.csv \
 
 | File | Required | What it is |
 | --- | --- | --- |
-| Monthly Fit Report | yes | The month's fits, exported from the Fit Report as CSV |
+| Monthly Fit Report | yes | The month's fits — pass the `.xlsx` export directly, or a CSV |
 | `--rx-history` | no | Customer → most recent prior RX date. Needed for the 12-month new-customer test |
 | `--awarded-customers` | no | Customers that already used their one-time new-customer bonus |
 | `--honorariums` | no | Rep honorarium payouts for the month |
@@ -134,3 +134,28 @@ See [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md). A handful of rules are ambiguous i
 the source documents and are currently implemented against a stated assumption —
 those need Allissa's confirmation, and the SOP's own instruction to validate
 against historical months still applies.
+
+## Reading the real Fit Report
+
+The Affecto export is not a tidy table, so `sales_points/fit_report.py` handles
+its quirks rather than requiring anyone to clean the file up by hand:
+
+- three banner rows sit above the header, so the header row is detected by
+  looking for the row carrying both `PATIENT STATUS` and `PRODUCT`
+- `PRO`, `REP` and `TYPE` each appear twice; the first occurrence wins
+- the fit state is inside `PATIENT STATUS` as `(8.1) FIT` — `FIT/INCOMPLETE`,
+  `RETURNED` and `PATIENT DEMO` correctly score nothing
+- the insurance **category** (`PA WC`, `MI AUTO`, `MEDICARE`) is in `TYPE`;
+  `INS` holds the payer name (`SEDGWICK`, `BROADSPIRE`) and is not used for
+  rule matching
+- the **surgical marker** is in `URGENCY / INCOMPLETE NOTES`, not in `TYPE`
+
+Reading `.xlsx` requires `openpyxl` (`pip install openpyxl`). CSV input needs
+no dependencies.
+
+### Validated against a real month
+
+`27) MARCH 2026 FITTINGS` — 231 rows, **142 scored automatically (61%)**. Of the
+89 flagged, 66 are TCT rows whose surgical status cannot be determined from the
+report; see question 0 in `OPEN_QUESTIONS.md`. That number should rise sharply
+once that one question is answered.

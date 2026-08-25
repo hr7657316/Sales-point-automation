@@ -9,6 +9,49 @@ be decided, it is flagged into `review_queue.csv` instead.
 
 ---
 
+### 0. Post-surgical vs non-surgical on TCT rows — BLOCKING
+
+Validated against the real **27) MARCH 2026 FITTINGS** export (231 rows).
+
+The surgical marker was found: it lives in the **`URGENCY / INCOMPLETE NOTES`**
+column, which holds exactly three values — blank, `IMMEDIATE`, and `SURGICAL`.
+`SURGICAL` appears on TCT rows only (20 of them in March), and the engine now
+reads it, scoring those at 700.
+
+But the point rules need a **three-way** split:
+
+| Scenario | Points |
+| --- | --- |
+| WC Surgical | 700 |
+| WC Post-Surgical, MD/DO/PA/NP/OPM, <30 day post-op | 500 |
+| WC Non-Surgical | 100 |
+
+The column only distinguishes surgical from everything else. That leaves **66
+TCT rows in March** that cannot be scored, because there is no way to tell a
+500 from a 100 — a 5x difference.
+
+**Question:** for a TCT Work Comp row that is not marked `SURGICAL`, how do you
+decide post-surgical vs non-surgical? Is it on the RX, is it the `30 DAY RX` in
+the product name, or does it come from another report?
+
+This is the single biggest remaining blocker: it is roughly 29% of the month.
+
+---
+
+### 0b. Products with no rule
+
+Also surfaced by the March export:
+
+- **`LSO`** (4 rows) — a lumbar-sacral orthosis. Should this use the Back Brace
+  rule (300 WC/Medicare)? Not assumed, because it is a guess.
+- **`PERSON INJURY` / `PERSONAL INJURY`** (2 rows) — there is no personal-injury
+  rule anywhere in the cheat sheet. What should these score?
+- **`MZ ONLY (GARMENT NOT LISTED ON RX)` + `PA AUTO`, ancillary** (5 rows) —
+  this looks exactly like the ancillary MZ Auto "no garment fitted" exception,
+  which would make it the standard 250. Is that reading correct?
+
+---
+
 ### 1. FFW adjustment vs. the ancillary table — the two sources disagree
 
 The Master SOP (§5.2) gives this example:

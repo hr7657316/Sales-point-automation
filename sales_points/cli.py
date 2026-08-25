@@ -6,6 +6,7 @@ import argparse
 from pathlib import Path
 
 from .engine import PointEngine
+from .fit_report import load_fit_report_workbook
 from .loaders import (
     load_awarded_customers,
     load_fit_report,
@@ -30,7 +31,7 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument("fit_report", type=Path,
-                        help="Monthly Fit Report exported as CSV")
+                        help="Monthly Fit Report (.xlsx export, or CSV)")
     parser.add_argument("-o", "--out-dir", type=Path, default=Path("output"),
                         help="Directory for the generated point sheets")
     parser.add_argument("--rules-dir", type=Path, default=None,
@@ -47,7 +48,12 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv=None) -> int:
     args = build_parser().parse_args(argv)
 
-    rows = load_fit_report(args.fit_report)
+    # .xlsx exports go through the Fit Report reader, which knows about the
+    # banner rows, repeated headers and the URGENCY surgical marker.
+    if args.fit_report.suffix.lower() in {".xlsx", ".xlsm"}:
+        rows = load_fit_report_workbook(args.fit_report)
+    else:
+        rows = load_fit_report(args.fit_report)
     engine = PointEngine(
         rulebook=RuleBook.load(args.rules_dir),
         rx_history=load_rx_history(args.rx_history),

@@ -37,6 +37,9 @@ class FitRow:
     bmv: bool = False
     garment_fitted: bool | None = None
     new_customer: bool | None = None
+    # Sourced from the Fit Report's URGENCY / INCOMPLETE NOTES column,
+    # which is where the surgical marker actually lives.
+    surgical: bool | None = None
     row_number: int = 0
     raw: dict = field(default_factory=dict)
 
