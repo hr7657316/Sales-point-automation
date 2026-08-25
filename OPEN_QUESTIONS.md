@@ -52,6 +52,52 @@ Also surfaced by the March export:
 
 ---
 
+### Validation across seven months (Jan-Jul 2026)
+
+All seven 2026 Fit Reports were run through the engine: **1,375 rows, zero parse
+failures**. The layout is identical every month, so the reader is stable.
+
+| Month | Rows | Scored | Coverage |
+| --- | --- | --- | --- |
+| January | 162 | 112 | 71% |
+| February | 165 | 113 | 68% |
+| March | 231 | 139 | 61% |
+| April | 209 | 136 | 66% |
+| May | 196 | 122 | 64% |
+| June | 185 | 118 | 65% |
+| July | 227 | 143 | 64% |
+| **Total** | **1,375** | **883** | **65%** |
+
+Of the 471 rows flagged across all seven months:
+
+| Rows | Cause |
+| --- | --- |
+| **413** | TCT / Cold Therapy - surgical vs non-surgical unknown |
+| 35 | Ancillary MZ Auto, garment not listed |
+| 12 | Products and insurance types with no rule (below) |
+| 7 | `LSO` |
+| 4 | Personal Injury |
+
+**88% of everything unscored is the single surgical question.** Answer it and
+coverage goes from 65% to roughly **96%**.
+
+### 0c. Further products and insurance types with no rule
+
+Only visible once all seven months were checked:
+
+- **`KNEE SCOOTER`** (4 rows, CO WC) - no rule
+- **`TENS ONLY`** (1 row) - no rule
+- **`GARMENT ONLY`** (1 row, Medicare) - no rule
+- **`SPORT-Z`** with insurance type `SELF-PAY` - the rules cover SportZ at 0
+  points, but is self-pay treated the same?
+- Insurance types absent from the rulebook: **`RAILROAD CLAIM`**,
+  **`SLIP & FALL`**, **`SELF-PAY`**, **`CO WC P2A`**, **`IL AUTO`**
+
+`IL AUTO` matters: the rules name PA, MI and FL Auto at 250. Illinois Auto is
+not listed, so those rows score nothing. Is that deliberate or an omission?
+
+---
+
 ### 1. FFW adjustment vs. the ancillary table — the two sources disagree
 
 The Master SOP (§5.2) gives this example:
