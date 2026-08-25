@@ -9,7 +9,7 @@ match a rule is flagged for human review instead of being guessed at.
 
 from __future__ import annotations
 
-from datetime import date, timedelta
+from datetime import date
 
 from .models import FitRow, Rep, RepSummary, RowResult
 from .parsing import parse_reps
