@@ -25,7 +25,7 @@ FIT_REPORT_COLUMNS = {
     "type": "TYPE",
     "date_rx_received": "DATE RX REC'D",
     "patient_status": "PATIENT STATUS",
-    "fit_date": "DOS",
+    "dos_code": "DOS",
     "product": "PRODUCT",
     "insurance_status": "INSURANCE STATUS",
     "patient": "PATIENT INFO",
@@ -36,6 +36,12 @@ FIT_REPORT_COLUMNS = {
 HEADER_MARKERS = ("patientstatus", "product")
 
 SURGICAL_MARKER = "SURGICAL"
+
+# DOS values that mark an open or litigated case rather than a date.
+OPEN_LITIGATED_CODES = {"A", "C"}
+
+# There is no "garment fitted" column; the product description carries it.
+NO_GARMENT_MARKERS = ("GARMENT NOT LISTED", "GARMENT NON-ELIGIBLE", "NO GARMENT")
 
 
 def _require_openpyxl():
@@ -93,6 +99,27 @@ def is_surgical(urgency: str) -> bool:
     return SURGICAL_MARKER in (urgency or "").upper()
 
 
+def is_open_or_litigated(dos: str) -> bool:
+    """The DOS column holds 'A' or 'C' far more often than a date.
+
+    The rules call this "DOS or non DOS (A or C)" and treat it as the open or
+    litigated scenario. A real date in this column means the case is not one.
+    """
+    return (dos or "").strip().upper() in OPEN_LITIGATED_CODES
+
+
+def garment_fitted(product: str) -> bool | None:
+    """Whether a garment was fitted, read from the product description.
+
+    Returns None when the product says nothing either way, so the ancillary
+    exception only fires on an explicit "no garment" product.
+    """
+    text = (product or "").upper()
+    if any(marker in text for marker in NO_GARMENT_MARKERS):
+        return False
+    return None
+
+
 def rows_from_grid(grid: list) -> list:
     """Turn a raw sheet grid into FitRow objects."""
     header_index = find_header_row(grid)
@@ -123,7 +150,11 @@ def rows_from_grid(grid: list) -> list:
                 insurance=get("insurance"),
                 type=get("type"),
                 date_rx_received=parse_date(get("date_rx_received")),
-                fit_date=parse_date(get("fit_date")),
+                # No column reliably holds the fit date, so it is left unset
+                # rather than filled with the DOS code.
+                fit_date=None,
+                dos_code=get("dos_code"),
+                garment_fitted=garment_fitted(get("product")),
                 patient_status=patient_status,
                 # The provider is the customer for new-customer bonus purposes.
                 doc=get("pro"),

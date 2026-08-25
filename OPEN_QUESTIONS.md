@@ -1,5 +1,63 @@
 # Open questions for Allissa
 
+---
+
+## VALIDATED AGAINST A PAID SHEET
+
+`Paul Lopiccolo Monthly Points Worksheet`, MARCH 2026 tab - the sheet that was
+actually paid. Total paid: **19,050 points**. The engine now produces **18,350
+on the same month, 96.3%, with no rows flagged.**
+
+| Rule | Paid | Engine | |
+| --- | --- | --- | --- |
+| TCT Work Comp Surgical | 3 / 2100 | 3 / 2100 | match |
+| TCT Non-Surg WC/Auto open or litigated | 15 / 4500 | 15 / 4500 | match |
+| MZ Work Comp | 17 / 8500 | 16 / 8000 | 1 row |
+| MZ PA, MI, FL Auto | 3 / 750 | 3 / 750 | match |
+| Ancillary TCT Surgical Post-OP | 1 / 200 | 1 / 200 | match |
+| Ancillary TCT Non-Surgical | 6 / 1200 | 6 / 1200 | match |
+| Ancillary MZ Work Comp | 7 / 1400 | 8 / 1600 | 1 row |
+| Gold Pair | 8 / 400 | not scored | needs a fit date |
+
+### What the paid sheet corrected
+
+**The DOS column is not a date.** It holds `A` or `C` on 182 of 231 March rows.
+The rules call this "DOS or non DOS (A or C)" and it marks the open or
+litigated case. This single discovery resolved the entire surgical question:
+a TCT row is surgical when URGENCY says so, and open/litigated at 300 when DOS
+is A or C. All 25 of Lopiccolo's TCT rows then matched the paid sheet exactly.
+
+**Ancillary rates were wrong in the cheat sheet.** The paid sheet shows
+`200\100` (work comp \ auto) on every ancillary line. The cheat sheet said
+300/200/100 with 0 for auto. The engine was overpaying every ancillary row.
+
+**Back Brace is 250, not 300.**
+
+**TENS is counted with MZ**, matching the sheet's own "MZ/TENS" line.
+
+**"Garment not listed" lives in the product description**, not in a column of
+its own, which is what triggers the ancillary MZ Auto exception at 250.
+
+### The 700 points still unaccounted for
+
+- **400** - Gold Pair. The rule needs both a TCT and an MZ fit within 30
+  calendar days, but no column in the Fit Report reliably holds a fit date
+  (DOS is the A/C code). **Which column is the fit date?**
+- **300** - one row typed `PA WC P2A` from a starred provider. Allissa scored
+  it as standard MZ Work Comp, not ancillary. **Does a P2A/FP2A case override
+  the ancillary marker?**
+
+### Categories on the paid sheet that are in no rulebook
+
+MISx (SurGenTec, Tenon, Omnia, Eliquence), Work Comp Pharmacy, Pharmacy RX,
+Wound Kit, TCT AT sold, Recruit and install a 1099 contractor, and an entire
+**FP2A section with negative points** (`-250` PA WC TCT, `-100` PA WC MZ or TT,
+`-250` licensed TCT unit, `-250` TCT patient demo, `-75` Sport-Z demo).
+
+Deductions of that kind are not in the cheat sheet at all. **Do they need to be
+in scope?**
+
+
 These are the points where the source documents are ambiguous or disagree. Each
 one is implemented against a stated assumption so the engine runs today, but each
 needs confirmation before a real payroll month is calculated from it.

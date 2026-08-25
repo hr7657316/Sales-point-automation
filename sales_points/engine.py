@@ -20,6 +20,7 @@ BMV_OVERRIDE = "BMV_OVERRIDE"
 ANCILLARY_MZ_AUTO_EXCEPTION = "ANCILLARY_MZ_AUTO_EXCEPTION"
 NO_RULE_MATCH = "NO_RULE_MATCH"
 SURGICAL_MARKER = "SURGICAL"
+OPEN_LITIGATED_MARKER = "NON-SURGICAL OPEN LITIGATED"
 
 
 def _match_type(row: FitRow) -> str:
@@ -30,6 +31,9 @@ def _match_type(row: FitRow) -> str:
     """
     if row.surgical:
         return f"{row.type} {SURGICAL_MARKER}".strip()
+    # A DOS code of A or C marks an open or litigated, non-surgical case.
+    if (row.dos_code or "").strip().upper() in {"A", "C"}:
+        return f"{row.type} {OPEN_LITIGATED_MARKER}".strip()
     return row.type
 
 

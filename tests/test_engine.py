@@ -61,7 +61,7 @@ def evaluate(engine, row):
         ("MZ", "OH Work Comp", "13 Month Rental", 50, "MZ_OH_WC_RENTAL_TRIAL"),
         ("SportZ", "", "", 0, "SPORTZ"),
         ("Bone Stim", "Work Comp", "", 500, "BONE_STIM_OR_LASER"),
-        ("Back Brace", "Medicare", "", 300, "BACK_BRACE_WC_MEDICARE"),
+        ("Back Brace", "Medicare", "", 250, "BACK_BRACE_WC_MEDICARE"),
     ],
 )
 def test_standard_base_points(engine, product, insurance, type_, expected, rule_id):
@@ -90,12 +90,15 @@ def test_ohio_wc_rental_beats_plain_mz_work_comp(engine):
 @pytest.mark.parametrize(
     "product,insurance,type_,expected",
     [
-        ("TCT", "Work Comp", "Surgical", 300),
-        ("TCT", "Auto", "Surgical", 0),
+        # Rates confirmed against a paid rep sheet: every ancillary line is
+        # 200 for work comp and 100 for auto. The cheat sheet's 300/200/100
+        # with 0 for auto did not match what was actually paid.
+        ("TCT", "Work Comp", "Surgical", 200),
+        ("TCT", "Auto", "Surgical", 100),
         ("TCT", "Work Comp", "Non-Surgical", 200),
-        ("TCT", "Auto", "Non-Surgical", 0),
-        ("TCT", "Work Comp", "Cold Therapy", 100),
-        ("MZ", "Work Comp", "", 300),
+        ("TCT", "Auto", "Non-Surgical", 100),
+        ("TCT", "Work Comp", "Cold Therapy", 200),
+        ("MZ", "Work Comp", "", 200),
     ],
 )
 def test_ancillary_points(engine, product, insurance, type_, expected):

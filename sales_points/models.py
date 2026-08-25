@@ -40,6 +40,9 @@ class FitRow:
     # Sourced from the Fit Report's URGENCY / INCOMPLETE NOTES column,
     # which is where the surgical marker actually lives.
     surgical: bool | None = None
+    # The DOS column is not a date. It usually holds 'A' or 'C', which the
+    # rules call "DOS or non DOS", marking an open or litigated case.
+    dos_code: str = ""
     row_number: int = 0
     raw: dict = field(default_factory=dict)
 

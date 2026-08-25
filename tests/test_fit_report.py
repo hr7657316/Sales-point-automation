@@ -6,7 +6,9 @@ from sales_points.engine import PointEngine
 from sales_points.fit_report import (
     build_column_index,
     find_header_row,
+    garment_fitted,
     is_fit,
+    is_open_or_litigated,
     is_surgical,
     rows_from_grid,
 )
@@ -27,7 +29,7 @@ def grid(*data_rows):
 
 
 def row(pro="SMITH MD", rep="LOPICCOLO (M1-11-69)", ins="SEDGWICK",
-        type_="PA WC", status="(8.1) FIT", dos="03-14-26",
+        type_="PA WC", status="(8.1) FIT", dos="A",
         product="TCT-RT KNEE-30 DAY RX DUAL", ins_status="BILLED",
         patient="JANE DOE 01-01-70", urgency=""):
     cells = [""] * len(HEADER)
@@ -106,12 +108,87 @@ def test_surgical_marker_reaches_the_point_rules():
         grid(row(urgency="SURGICAL"), row(urgency="IMMEDIATE"))
     )
     assert engine.evaluate_row(surgical, {}).base_points == 700
-    # Without the marker the surgical/non-surgical split is unknown, so the
-    # row is flagged rather than scored.
-    assert engine.evaluate_row(plain, {}).review_needed is True
+    # Without the marker, the DOS code decides. Both rows here carry DOS 'A',
+    # so the unmarked one is the open or litigated case at 300.
+    assert engine.evaluate_row(plain, {}).base_points == 300
+
+
+def test_tct_with_neither_marker_nor_dos_code_is_flagged():
+    """With no surgical marker and no DOS code there is nothing to go on."""
+    engine = PointEngine()
+    parsed = rows_from_grid(grid(row(dos="", urgency="IMMEDIATE")))[0]
+    assert engine.evaluate_row(parsed, {}).review_needed is True
 
 
 def test_non_fit_rows_score_nothing():
     engine = PointEngine()
     parsed = rows_from_grid(grid(row(status="RETURNED", urgency="SURGICAL")))
     assert engine.evaluate_row(parsed[0], {}).total_points == 0
+
+
+# --- DOS is a code, not a date --------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "dos,expected",
+    [("A", True), ("C", True), ("a", True), ("03-16-26", False), ("", False)],
+)
+def test_open_or_litigated_read_from_dos_code(dos, expected):
+    assert is_open_or_litigated(dos) is expected
+
+
+def test_dos_code_is_not_treated_as_a_fit_date():
+    """DOS holds 'A' or 'C' far more often than a date, so it is not a date."""
+    parsed = rows_from_grid(grid(row(dos="A")))[0]
+    assert parsed.dos_code == "A"
+    assert parsed.fit_date is None
+
+
+def test_tct_with_dos_code_a_scores_the_open_litigated_rate():
+    """Confirmed against a paid rep sheet: 15 such rows were paid at 300."""
+    engine = PointEngine()
+    parsed = rows_from_grid(grid(row(dos="A", urgency="")))[0]
+    result = engine.evaluate_row(parsed, {})
+    assert result.rule_used == "TCT_NONSURG_WC_AUTO_LITIGATED"
+    assert result.base_points == 300
+
+
+def test_ancillary_tct_with_dos_code_a_scores_200():
+    """Confirmed against a paid rep sheet: 6 such rows were paid at 200."""
+    engine = PointEngine()
+    parsed = rows_from_grid(grid(row(pro="THOMAS MD *", dos="A")))[0]
+    result = engine.evaluate_row(parsed, {})
+    assert result.is_ancillary is True
+    assert result.base_points == 200
+
+
+def test_surgical_marker_still_beats_the_dos_code():
+    engine = PointEngine()
+    parsed = rows_from_grid(grid(row(dos="A", urgency="SURGICAL")))[0]
+    assert engine.evaluate_row(parsed, {}).base_points == 700
+
+
+# --- garment read from the product description -----------------------------
+
+@pytest.mark.parametrize(
+    "product,expected",
+    [
+        ("MZ ONLY (GARMENT NOT LISTED ON RX) (LT)", False),
+        ("MZ ONLY (GARMENT NON-ELIGIBLE)", False),
+        ("MZ-RT KNEE (LT) DUAL", None),
+    ],
+)
+def test_garment_read_from_product(product, expected):
+    assert garment_fitted(product) is expected
+
+
+def test_ancillary_mz_auto_with_no_garment_uses_the_standard_250():
+    """Confirmed against a paid rep sheet: 3 such rows were paid at 250."""
+    engine = PointEngine()
+    parsed = rows_from_grid(grid(row(
+        pro="HOLMBERG DO *", type_="PA AUTO",
+        product="MZ ONLY (GARMENT NOT LISTED ON RX) (LT) DUAL",
+    )))[0]
+    result = engine.evaluate_row(parsed, {})
+    assert result.is_ancillary is False
+    assert result.base_points == 250
