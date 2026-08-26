@@ -45,6 +45,9 @@ class FitRow:
     dos_code: str = ""
     # surgical / post-surgical / outside-window, from DOS vs the fit date
     surgical_class: str = ""
+    # True for 'garment not listed on RX' specifically, which leaves the
+    # ancillary program even on work comp; 'non-eligible' only does for auto
+    garment_unlisted: bool = False
     row_number: int = 0
     raw: dict = field(default_factory=dict)
 

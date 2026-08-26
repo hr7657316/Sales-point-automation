@@ -42,8 +42,8 @@ SURGICAL_MARKER = "SURGICAL"
 OPEN_LITIGATED_CODES = {"A", "C"}
 
 # There is no "garment fitted" column; the product description carries it.
-NO_GARMENT_MARKERS = ("GARMENT NOT LISTED", "GARMENT NON-ELIGIBLE",
-                      "GARMENT NOT ELIGIBLE", "NO GARMENT")
+NO_GARMENT_MARKERS = ("GARMENT NOT LISTED", "NO GARMENT")
+GARMENT_INELIGIBLE_MARKERS = ("GARMENT NON-ELIGIBLE", "GARMENT NOT ELIGIBLE")
 
 
 def _require_openpyxl():
@@ -137,9 +137,14 @@ def garment_fitted(product: str) -> bool | None:
     exception only fires on an explicit "no garment" product.
     """
     text = (product or "").upper()
-    if any(marker in text for marker in NO_GARMENT_MARKERS):
+    if any(m in text for m in NO_GARMENT_MARKERS + GARMENT_INELIGIBLE_MARKERS):
         return False
     return None
+
+
+def garment_not_listed(product: str) -> bool:
+    """True only for the 'garment not listed on RX' wording specifically."""
+    return any(m in (product or "").upper() for m in NO_GARMENT_MARKERS)
 
 
 def rows_from_grid(grid: list) -> list:
@@ -178,6 +183,7 @@ def rows_from_grid(grid: list) -> list:
                 dos_code=get("dos_code"),
                 surgical_class=kind,
                 garment_fitted=garment_fitted(get("product")),
+                garment_unlisted=garment_not_listed(get("product")),
                 patient_status=patient_status,
                 # The provider is the customer for new-customer bonus purposes.
                 doc=get("pro"),

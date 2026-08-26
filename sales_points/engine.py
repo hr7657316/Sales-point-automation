@@ -84,20 +84,20 @@ class PointEngine:
         is_ancillary = bool(marker) and marker in (row.pro or "")
         note = ""
 
-        # Critical override: an ancillary provider's MZ Auto RX with no garment
-        # fitted is not processed through the Ancillary Program, so the standard
-        # MZ Auto rule applies instead.
+        # Critical override, confirmed against the paid July split: a referral
+        # with no garment fitted is not processed through the Ancillary
+        # Program at all, so the standard rules apply - for work comp rows as
+        # well as auto.
         if (
             is_ancillary
             and "mz" in (row.product or "").lower()
-            and _is_auto(row)
             and row.garment_fitted is False
         ):
             is_ancillary = False
             note = (
-                "Ancillary exception applied: MZ Auto with no garment fitted is not "
-                "processed through the Ancillary Program, so the standard MZ Auto "
-                "rule was used."
+                "Ancillary exception applied: MZ with no garment fitted is not "
+                "processed through the Ancillary Program, so the standard rule "
+                "was used."
             )
         return is_ancillary, note
 
