@@ -97,14 +97,13 @@ def is_fit(patient_status: str) -> bool:
 
 
 def surgical_kind(urgency: str, dos: str = "", fit=None) -> str:
-    """Classify the surgical scenario, per Allissa's stated rules.
+    """Classify the surgical scenario, per Allissa's confirmed rules.
 
-    DOS is the Date Of Surgery; the fit date is DATE DME REC'D (column W).
-    Surgery on or after the fit and within 30 days: surgical. Surgery before
-    the fit and within 30 days: post-surgical. A surgery outside either
-    window is treated like a non-surgical open/litigated case, which is how
-    such rows were actually paid. Without a fit date, any surgery date
-    counts as surgical, and the URGENCY marker always does.
+    The 30-day rule applies to TCT and TT only (the engine's rules already
+    scope it so), and the surgery date must fall within 30 days of the fit
+    date in either direction - Christopher Giordano (surgery 26 days before
+    the fit) is surgical at 700, Jenny Gunter (37 days before) is not and
+    falls to the open/litigated 300. Surgery dates never affect MZ.
     """
     if SURGICAL_MARKER in (urgency or "").upper():
         return "surgical"
@@ -113,11 +112,8 @@ def surgical_kind(urgency: str, dos: str = "", fit=None) -> str:
         return ""
     if fit is None:
         return "surgical"
-    days = (surgery - fit).days
-    if 0 <= days <= 30:
+    if abs((surgery - fit).days) <= 30:
         return "surgical"
-    if -30 <= days < 0:
-        return "post-surgical"
     return "outside-window"
 
 
@@ -143,7 +139,13 @@ def garment_fitted(product: str) -> bool | None:
 
 
 def garment_not_listed(product: str) -> bool:
-    """True only for the 'garment not listed on RX' wording specifically."""
+    """True only for the 'garment not listed on RX' wording specifically.
+
+    Per Allissa: a garment-not-listed referral leaves the ancillary program
+    entirely (Kenya Willis, paid standard 500 on work comp), while a
+    non-eligible garment from an ancillary provider stays ancillary on work
+    comp (Roy Wright, paid the ancillary 200).
+    """
     return any(m in (product or "").upper() for m in NO_GARMENT_MARKERS)
 
 

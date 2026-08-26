@@ -92,6 +92,7 @@ class PointEngine:
             is_ancillary
             and "mz" in (row.product or "").lower()
             and row.garment_fitted is False
+            and (row.garment_unlisted or _is_auto(row))
         ):
             is_ancillary = False
             note = (

@@ -2,6 +2,44 @@
 
 ---
 
+## FINAL RULINGS FROM ALLISSA (Questions 2 email)
+
+Her answers to the last two row-level questions, all implemented:
+
+- **The 30-day rule applies to TCT and TT only. Surgery dates never affect
+  MZ.** A TCT is surgical at 700 when the surgery falls within 30 days of the
+  fit date in either direction; outside that it is the open/litigated 300.
+- **Christopher Giordano was underpaid.** His TCT was paid 300 but "should
+  have been worth 700" - surgery 26 days before the fit. The engine's
+  calculation was closer to correct than the paid sheet.
+- **Jenny Gunter's TCT is 300**, not the post-surgical 500 the May sheet
+  categorized - surgery 37 days before the fit. Again the engine agreed with
+  her ruling, not the sheet.
+- **Roy Wright's 200 was correct** under the pre-June point sheet: an
+  ancillary MZ Work Comp with a non-eligible garment stays ancillary. She
+  also confirmed in passing that ancillary MZ WC went 200 to 300 in June -
+  the period versioning the engine already implements.
+- **Chelsea Snyder's 500 was correct** because she treats that provider as
+  non-ancillary for MZ WC, even though the fit report stars them: "MZ Work
+  Comp patients with non-ancillary providers are always 500 points,
+  regardless of garment."
+- Garment wording distinction: **garment NOT LISTED** leaves the ancillary
+  program entirely (Kenya Willis, standard 500 on WC); **garment
+  NON-ELIGIBLE** stays ancillary on work comp (Wright) but standard on auto
+  (her earlier answer).
+
+### The most important finding of the whole validation
+
+Two of the seven paid months contained errors that Allissa herself confirmed
+when shown the rows: Giordano underpaid by 400 points in April, Gunter
+misclassified in May. **The engine caught both.** The remaining differences
+against the paid sheets are concentrated in per-row provider-status
+judgments (which providers count as ancillary for which product) that the
+fit report's star marker does not fully capture.
+
+
+---
+
 ## ALLISSA'S SIX ANSWERS, WIRED IN
 
 1. **Fit date = column W, DATE DME REC'D.** The reader now uses it.

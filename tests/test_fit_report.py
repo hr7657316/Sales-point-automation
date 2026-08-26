@@ -199,7 +199,7 @@ FIT = datetime.date(2026, 3, 15)
         ("SURGICAL", "A", None, "surgical"),          # explicit marker wins
         ("", "03-20-26", FIT, "surgical"),            # surgery 5 days after fit
         ("", "04-14-26", FIT, "surgical"),            # 30 days after: still in
-        ("", "03-01-26", FIT, "post-surgical"),       # fit 14 days post-op
+        ("", "03-01-26", FIT, "surgical"),            # fit 14 days post-op
         ("", "01-10-26", FIT, "outside-window"),      # surgery too old
         ("", "05-01-26", FIT, "outside-window"),      # surgery too far ahead
         ("", "03-20-26", None, "surgical"),           # no fit date: fall back
