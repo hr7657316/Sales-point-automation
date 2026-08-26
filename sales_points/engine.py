@@ -19,6 +19,11 @@ NOT_FIT = "NOT_FIT"
 BMV_OVERRIDE = "BMV_OVERRIDE"
 ANCILLARY_MZ_AUTO_EXCEPTION = "ANCILLARY_MZ_AUTO_EXCEPTION"
 NO_RULE_MATCH = "NO_RULE_MATCH"
+INSURANCE_NOT_ELIGIBLE = "INSURANCE_NOT_ELIGIBLE"
+
+# Insurance Status values that earn points; anything else earns none at all.
+ELIGIBLE_STATUS_MARKERS = ("O/A/B", "OPEN/ACTIVE/BILLABLE", "BILLED",
+                           "OPEN/BILLABLE")
 SURGICAL_MARKER = "SURGICAL"
 OPEN_LITIGATED_MARKER = "NON-SURGICAL OPEN LITIGATED"
 
@@ -29,10 +34,13 @@ def _match_type(row: FitRow) -> str:
     The Fit Report keeps the surgical marker in a separate column, so it is
     folded in here rather than being lost.
     """
-    if row.surgical:
+    if row.surgical or row.surgical_class == "surgical":
         return f"{row.type} {SURGICAL_MARKER}".strip()
-    # A DOS code of A or C marks an open or litigated, non-surgical case.
-    if (row.dos_code or "").strip().upper() in {"A", "C"}:
+    if row.surgical_class == "post-surgical":
+        return f"{row.type} POST-SURGICAL".strip()
+    # A DOS of A or C marks an open or litigated, non-surgical case - and a
+    # surgery outside the 30-day window is paid the same way.
+    if (row.dos_code or "").strip().upper() in {"A", "C"} or row.surgical_class == "outside-window":
         return f"{row.type} {OPEN_LITIGATED_MARKER}".strip()
     return row.type
 
@@ -196,6 +204,18 @@ class PointEngine:
             result.explanation = (
                 f"Fit status is '{row.fit_status or 'blank'}', not a Fit Complete "
                 "status, so no points were assigned."
+            )
+            result.rep_allocations = self._allocate(row, 0, result)
+            return result
+
+        # Insurance Status gate: without O/A/B, Billed or Billed without
+        # Auth, the rep earns no points for the row, whatever the product.
+        status = (row.insurance_status or "").upper()
+        if status and not any(m in status for m in ELIGIBLE_STATUS_MARKERS):
+            result.rule_used = INSURANCE_NOT_ELIGIBLE
+            result.explanation = (
+                f"Insurance Status is '{row.insurance_status}', not O/A/B, "
+                "Billed or Billed without Auth, so no points are earned."
             )
             result.rep_allocations = self._allocate(row, 0, result)
             return result

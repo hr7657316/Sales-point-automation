@@ -9,8 +9,8 @@ from sales_points.fit_report import (
     garment_fitted,
     is_fit,
     is_open_or_litigated,
-    is_surgical,
     rows_from_grid,
+    surgical_kind,
 )
 
 # Mirrors the real export: banner rows on top, repeated PRO/REP/TYPE headers,
@@ -71,14 +71,6 @@ def test_duplicate_headers_resolve_to_the_first_occurrence():
 )
 def test_fit_state_read_from_patient_status(status, expected):
     assert is_fit(status) is expected
-
-
-@pytest.mark.parametrize(
-    "urgency,expected",
-    [("SURGICAL", True), ("IMMEDIATE", False), ("", False), ("surgical", True)],
-)
-def test_surgical_marker_read_from_urgency_column(urgency, expected):
-    assert is_surgical(urgency) is expected
 
 
 def test_row_fields_map_across_correctly():
@@ -196,23 +188,31 @@ def test_ancillary_mz_auto_with_no_garment_uses_the_standard_250():
 
 # --- DOS is the Date Of Surgery -------------------------------------------
 
+import datetime
+
+FIT = datetime.date(2026, 3, 15)
+
+
 @pytest.mark.parametrize(
-    "urgency,dos,expected",
+    "urgency,dos,fit,expected",
     [
-        ("SURGICAL", "A", True),      # explicit marker wins
-        ("", "04-10-26", True),       # a real surgery date means surgical
-        ("IMMEDIATE", "03-19-26", True),
-        ("", "A", False),             # no surgery date
-        ("IMMEDIATE", "C", False),
-        ("", "", False),
+        ("SURGICAL", "A", None, "surgical"),          # explicit marker wins
+        ("", "03-20-26", FIT, "surgical"),            # surgery 5 days after fit
+        ("", "04-14-26", FIT, "surgical"),            # 30 days after: still in
+        ("", "03-01-26", FIT, "post-surgical"),       # fit 14 days post-op
+        ("", "01-10-26", FIT, "outside-window"),      # surgery too old
+        ("", "05-01-26", FIT, "outside-window"),      # surgery too far ahead
+        ("", "03-20-26", None, "surgical"),           # no fit date: fall back
+        ("", "A", FIT, ""),                           # no surgery at all
+        ("IMMEDIATE", "C", FIT, ""),
     ],
 )
-def test_surgical_from_surgery_date_or_marker(urgency, dos, expected):
-    assert is_surgical(urgency, dos) is expected
+def test_surgical_kind_from_surgery_vs_fit_date(urgency, dos, fit, expected):
+    assert surgical_kind(urgency, dos, fit) == expected
 
 
 def test_tct_with_a_surgery_date_scores_the_surgical_rate():
-    """Validated on five paid months: a dated DOS is a surgical case."""
+    """A surgery date near the fit date is the surgical case at 700."""
     engine = PointEngine()
     parsed = rows_from_grid(grid(row(dos="04-10-26", urgency="")))[0]
     result = engine.evaluate_row(parsed, {})

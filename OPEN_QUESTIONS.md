@@ -2,6 +2,43 @@
 
 ---
 
+## ALLISSA'S SIX ANSWERS, WIRED IN
+
+1. **Fit date = column W, DATE DME REC'D.** The reader now uses it.
+2. **P2A means Fit Prior to Approval** and does not override the star.
+   Instead there is a global gate nobody had written down: **if Insurance
+   Status is not O/A/B, Billed, or Billed without Auth, the row earns no
+   points for any product.** Implemented as a hard gate before every rule.
+3. **Surgical = surgery within 30 days of the fit date.** Implemented
+   three-way: surgery on/after the fit within 30 days is surgical (700),
+   surgery before the fit within 30 days is post-surgical (500), anything
+   further out is paid like the open/litigated 300 - which matches how the
+   April outlier was actually paid.
+4. **Garment "NOT ELIGIBLE" auto from a starred provider = 250**, same as
+   garment-not-listed. Marker added.
+5. **Splits are provider-level**: the provider's total is split between the
+   two reps. July's 2,200 total is larger than the split-marked rows (1,750),
+   so some of that provider's rows must sit under a single rep name - see
+   remaining questions.
+6. **The 06-01-2026 label is just the sheet's validity period.** The
+   empirical Jan-May vs Jun-Jul rate difference stands and stays implemented.
+
+Standing after wiring these in: January and February exact, 98.0% across the
+seven paid months, every difference still row-traceable.
+
+### Two follow-ups her answers created
+
+- **Which date does the 30-day post-op test use?** May's post-surgical row
+  has surgery 04-14 with the RX received exactly 30 days later (05-14) but
+  the fit 38 days later - paid 500. April's row (surgery 03-30, RX 24 days
+  after, fit 30 days after) was paid 300. The fit-date reading matches
+  April; the RX-date reading matches May. One of the two is a one-off.
+- **Provider-level splits:** for July's 2,200 split, which rows made up the
+  2,200? The split-marked rows total 1,750.
+
+
+---
+
 ## SOLVED SINCE: Gold Pair, rate periods, honorarium conversion
 
 The June and July tabs of the paid worksheet carry the **Gold Pair patients by

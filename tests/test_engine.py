@@ -27,7 +27,7 @@ def make_row(**kwargs) -> FitRow:
         "date_rx_received": date(2026, 3, 1),
         "doc": "DR SMITH",
         "product": "TCT",
-        "insurance_status": "Eligible",
+        "insurance_status": "BILLED",
         "fit_status": "FIT",
     }
     defaults.update(kwargs)

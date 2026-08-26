@@ -30,6 +30,7 @@ FIT_REPORT_COLUMNS = {
     "insurance_status": "INSURANCE STATUS",
     "patient": "PATIENT INFO",
     "urgency": "URGENCY / INCOMPLETE NOTES",
+    "fit_date": "DATE DME REC'D",
 }
 
 # The header row is the one carrying both of these.
@@ -41,7 +42,8 @@ SURGICAL_MARKER = "SURGICAL"
 OPEN_LITIGATED_CODES = {"A", "C"}
 
 # There is no "garment fitted" column; the product description carries it.
-NO_GARMENT_MARKERS = ("GARMENT NOT LISTED", "GARMENT NON-ELIGIBLE", "NO GARMENT")
+NO_GARMENT_MARKERS = ("GARMENT NOT LISTED", "GARMENT NON-ELIGIBLE",
+                      "GARMENT NOT ELIGIBLE", "NO GARMENT")
 
 
 def _require_openpyxl():
@@ -94,16 +96,29 @@ def is_fit(patient_status: str) -> bool:
     return "FIT" in text and "INCOMPLETE" not in text
 
 
-def is_surgical(urgency: str, dos: str = "") -> bool:
-    """Whether the case is surgical.
+def surgical_kind(urgency: str, dos: str = "", fit=None) -> str:
+    """Classify the surgical scenario, per Allissa's stated rules.
 
-    DOS is the Date Of Surgery. A real date in it means there was a surgery,
-    which is what the rules mean by "DOS or non DOS (A or C)". The URGENCY
-    column also carries a SURGICAL marker and is honoured as well.
+    DOS is the Date Of Surgery; the fit date is DATE DME REC'D (column W).
+    Surgery on or after the fit and within 30 days: surgical. Surgery before
+    the fit and within 30 days: post-surgical. A surgery outside either
+    window is treated like a non-surgical open/litigated case, which is how
+    such rows were actually paid. Without a fit date, any surgery date
+    counts as surgical, and the URGENCY marker always does.
     """
     if SURGICAL_MARKER in (urgency or "").upper():
-        return True
-    return parse_date(dos) is not None
+        return "surgical"
+    surgery = parse_date(dos)
+    if surgery is None:
+        return ""
+    if fit is None:
+        return "surgical"
+    days = (surgery - fit).days
+    if 0 <= days <= 30:
+        return "surgical"
+    if -30 <= days < 0:
+        return "post-surgical"
+    return "outside-window"
 
 
 def is_open_or_litigated(dos: str) -> bool:
@@ -148,6 +163,8 @@ def rows_from_grid(grid: list) -> list:
             continue
 
         patient_status = get("patient_status")
+        fit_date = parse_date(get("fit_date"))
+        kind = surgical_kind(get("urgency"), get("dos_code"), fit_date)
         fit_rows.append(
             FitRow(
                 patient=get("patient").split("\n")[0][:60] or f"ROW-{offset}",
@@ -157,10 +174,9 @@ def rows_from_grid(grid: list) -> list:
                 insurance=get("insurance"),
                 type=get("type"),
                 date_rx_received=parse_date(get("date_rx_received")),
-                # No column reliably holds the fit date, so it is left unset
-                # rather than filled with the DOS code.
-                fit_date=None,
+                fit_date=fit_date,
                 dos_code=get("dos_code"),
+                surgical_class=kind,
                 garment_fitted=garment_fitted(get("product")),
                 patient_status=patient_status,
                 # The provider is the customer for new-customer bonus purposes.
@@ -168,7 +184,7 @@ def rows_from_grid(grid: list) -> list:
                 product=get("product"),
                 insurance_status=get("insurance_status"),
                 fit_status="FIT" if is_fit(patient_status) else patient_status,
-                surgical=is_surgical(get("urgency"), get("dos_code")),
+                surgical=(kind == "surgical"),
                 row_number=offset,
                 raw={},
             )

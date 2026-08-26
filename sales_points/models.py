@@ -43,6 +43,8 @@ class FitRow:
     # The DOS column is not a date. It usually holds 'A' or 'C', which the
     # rules call "DOS or non DOS", marking an open or litigated case.
     dos_code: str = ""
+    # surgical / post-surgical / outside-window, from DOS vs the fit date
+    surgical_class: str = ""
     row_number: int = 0
     raw: dict = field(default_factory=dict)
 
