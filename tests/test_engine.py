@@ -109,6 +109,14 @@ def test_ancillary_points(engine, product, insurance, type_, expected):
     assert result.base_points == expected
 
 
+def test_plus_marker_is_ancillary_too(engine):
+    """'+' marks an AMP MI ancillary provider, same treatment as the star."""
+    result = evaluate(engine, make_row(pro="PETER LASATER MD +", product="TCT",
+                                       insurance="Work Comp", type="Surgical"))
+    assert result.is_ancillary is True
+    assert result.base_points == 200
+
+
 def test_ancillary_mz_auto_without_garment_uses_standard_rule(engine):
     """Critical override from the BONUSES & EXCEPTIONS tab."""
     result = evaluate(engine, make_row(pro="*ANCILLARY GRP", product="MZ",

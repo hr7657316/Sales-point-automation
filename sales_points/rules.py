@@ -142,7 +142,9 @@ class Settings:
     fit_status_values: list = field(
         default_factory=lambda: ["fit", "fit complete", "fitted"]
     )
-    ancillary_marker: str = "*"
+    # '*' = FFW 2.0 provider, '+' = AMP MI provider; both mean Ancillary
+    # (per Allissa's email, either marker in PRO is reliable).
+    ancillary_markers: list = field(default_factory=lambda: ["*", "+"])
     honorarium_deduction_rate: float = 0.5
     honorarium_points_per_dollar: float = 1.0
     five_plus_window_days: int = 30
@@ -258,7 +260,7 @@ class RuleBook:
         if "fit_status_values" in raw:
             settings.fit_status_values = _split_list(raw["fit_status_values"])
         if "ancillary_marker" in raw:
-            settings.ancillary_marker = raw["ancillary_marker"]
+            settings.ancillary_markers = _split_list(raw["ancillary_marker"])
         if "honorarium_deduction_rate" in raw:
             settings.honorarium_deduction_rate = float(raw["honorarium_deduction_rate"])
         if "honorarium_points_per_dollar" in raw:

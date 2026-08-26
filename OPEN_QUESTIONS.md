@@ -2,6 +2,39 @@
 
 ---
 
+## RULINGS FROM ALLISSA (star-marker email) - all implemented
+
+Her answers to the star/ancillary questions, received 2026-08-26:
+
+- **The star designation in the fit report is reliable.** "There is either a
+  star (*) or a plus (+) sign" next to the provider name. `*` = FFW 2.0
+  ancillary provider, `+` = AMP MI ancillary provider (Michigan program).
+  The engine now treats either marker as ancillary
+  (`ancillary_marker = *|+` in `rules/settings.csv`).
+- **Ancillary status is provider-wide.** When a provider is in an ancillary
+  program the designation applies to all their products - but the **ancillary
+  point rules themselves only exist for TCT, MZ, and TT**. Other products
+  from a starred provider score by their standard rules.
+- **She manages the provider lists herself** and shared both trackers. They
+  are captured read-only in `rules/ancillary_providers.csv` (70 providers:
+  65 FFW 2.0, 5 AMP MI; pending contracts flagged `PENDING` - Kyle Holmberg,
+  Brian Stone, Matthew Sardelli).
+- **Chelsea Snyder's 500 was a scoring error after all**: "I made an error
+  when scoring Chelsea's TCT... it was a group error." March's corrected
+  paid total is therefore 18,750 - which the engine already produced.
+  **March is now EXACT**, making three paid-sheet errors the engine caught
+  (Giordano, Gunter, Snyder).
+
+The `+` marker appears 9 times in the Jan-Jul fit reports (Peter Lasater,
+Sabin Shah, Wednesday Hall - exactly the AMP MI tracker), all under Skyler's
+Michigan accounts, so Paul Lopiccolo's validation totals were unaffected.
+
+Validation standing after these rulings: **January, February, and March
+EXACT**; April -350, May -500, June -800, July -400 - all remaining
+differences are the per-row garment/ancillary judgment calls listed below.
+
+---
+
 ## FINAL RULINGS FROM ALLISSA (Questions 2 email)
 
 Her answers to the last two row-level questions, all implemented:
@@ -22,7 +55,8 @@ Her answers to the last two row-level questions, all implemented:
 - **Chelsea Snyder's 500 was correct** because she treats that provider as
   non-ancillary for MZ WC, even though the fit report stars them: "MZ Work
   Comp patients with non-ancillary providers are always 500 points,
-  regardless of garment."
+  regardless of garment." *(Superseded by her star-marker email: she later
+  confirmed this was a group scoring error - see the section above.)*
 - Garment wording distinction: **garment NOT LISTED** leaves the ancillary
   program entirely (Kenya Willis, standard 500 on WC); **garment
   NON-ELIGIBLE** stays ancillary on work comp (Wright) but standard on auto

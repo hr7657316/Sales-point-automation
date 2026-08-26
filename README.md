@@ -109,7 +109,8 @@ exported when they change:
 
 - `rules/point_rules.csv` — the POINT RULES table (base points per scenario)
 - `rules/bonuses.csv` — the BONUSES & EXCEPTIONS table
-- `rules/settings.csv` — fit statuses, the ancillary marker, deduction rate, windows
+- `rules/settings.csv` — fit statuses, the ancillary markers (`*` = FFW 2.0, `+` = AMP MI), deduction rate, windows
+- `rules/ancillary_providers.csv` — read-only snapshot of Allissa's two provider trackers (65 FFW 2.0 + 5 AMP MI providers)
 
 To change a point value or add a product line, edit the CSV. No code change is
 needed. Rules are matched by keyword; `|` separates alternatives and a blank cell

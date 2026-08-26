@@ -80,8 +80,8 @@ class PointEngine:
     # Step 5 / Step 6: ancillary detection and the critical MZ Auto override
     # ------------------------------------------------------------------
     def _resolve_ancillary(self, row: FitRow) -> tuple:
-        marker = self.rules.settings.ancillary_marker
-        is_ancillary = bool(marker) and marker in (row.pro or "")
+        markers = self.rules.settings.ancillary_markers
+        is_ancillary = any(m and m in (row.pro or "") for m in markers)
         note = ""
 
         # Critical override, confirmed against the paid July split: a referral
@@ -260,7 +260,7 @@ class PointEngine:
         result.explanation = (
             f"{rule.description} ({rule.rule_id}) matched on Product='{row.product}', "
             f"Insurance='{row.insurance}', Type='{type_text}'"
-            f"{', Ancillary provider (PRO contains *)' if result.is_ancillary else ''}"
+            f"{', Ancillary provider (PRO contains * or +)' if result.is_ancillary else ''}"
             f" -> {result.base_points} base points."
         )
         if ancillary_note:
