@@ -1,5 +1,7 @@
 """Tests for reading the real Monthly Fit Report layout."""
 
+import datetime
+
 import pytest
 
 from sales_points.engine import PointEngine
@@ -187,8 +189,6 @@ def test_ancillary_mz_auto_with_no_garment_uses_the_standard_250():
 
 
 # --- DOS is the Date Of Surgery -------------------------------------------
-
-import datetime
 
 FIT = datetime.date(2026, 3, 15)
 
