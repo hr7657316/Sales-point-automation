@@ -31,8 +31,16 @@ New rules wired in:
   EAST` - the engine already splits them. No change needed.
 - **New-customer bonus source**: the Last Referral column (Q) on the
   Affecto Tracker (link in her email). Not yet integrated.
-- **Honorarium folder** shared (Drive link in her email). Not yet
-  integrated.
+- **Honorarium folder ingested**: `rules/honorariums.csv` now holds all
+  15 honorarium contracts (rep, provider, rate, signed date). Paul
+  Lopiccolo holds Steven Regal ($1,000) and Tyler Watson ($500); July's
+  sheet deducted exactly 500 = 50% of Regal's $1,000, independently
+  confirming the deduction rule. Which months a check is actually issued
+  still comes from the monthly QuickBooks process (per the Honorarium
+  SOP), so per-month payouts remain a needed input.
+- **Affecto Tracker NOT accessible**: the link in her email returns
+  not-found for this account. She needs to share it before the
+  new-customer bonus (Last Referral, column Q) can be automated.
 
 Still open after this round (the last four gaps):
 

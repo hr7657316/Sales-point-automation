@@ -1,0 +1,16 @@
+sales_rep,honorarium_name,contract_signed,rate_usd,status,notes
+Skyler Zarndt,Joel Anderson,11/18/24,500.00,ACTIVE,
+Jon Janerich,David Janerich,12-01-24,1000.00,ACTIVE,
+Matt Royle,Derek (Duke) Thomas,12-09-24,1000.00,ACTIVE,
+Matt Royle,John Wrightson,11-27-23,500.00,ACTIVE,
+Matt Royle,Richard Scheuring (NASA Speaker),12-10-24,1000.00,ACTIVE,
+Matt Royle,Damon Combs,01-20-25,1500.00,ACTIVE,
+Skyler Zarndt,Matthew Sardelli,02-11-25,1000.00,ACTIVE,
+Skyler Zarndt,Sabin Shah,03-21-25,1000.00,ACTIVE,
+Skyler Zarndt,Paul Al-Attar MD,03-26-25,1000.00,ACTIVE,
+Matt Royle,"Sharon Kouvaras, PA-C",03-04-25,1000.00,ACTIVE,
+Paul Lopiccolo,"Steven Regal, MD",02-10-25,1000.00,ACTIVE,
+Matt Royle,"Marco Alcala, MD",??,1500.00,ACTIVE,
+Skyler Zarndt,"Lafi Khalil, MD",09-24-25,1000.00,ACTIVE,
+Paul Lopiccolo,"Tyler Watson, DO",07-22-25,500.00,ACTIVE,
+Samir Thapa,"Kyle Holmberg, DO",,,PENDING,waiting on signature from provider.
