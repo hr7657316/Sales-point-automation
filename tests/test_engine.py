@@ -109,6 +109,37 @@ def test_ancillary_points(engine, product, insurance, type_, expected):
     assert result.base_points == expected
 
 
+def test_electrodes_only_earns_nothing(engine):
+    """Supply-only shipments earn no points (Patricia Elbayly ruling)."""
+    result = evaluate(engine, make_row(product="MZ - ELECTRODES ONLY",
+                                       insurance="Medicare", type="MEDICARE"))
+    assert result.rule_used == "SUPPLY_ONLY"
+    assert result.base_points == 0
+
+
+def test_self_pay_is_zero_for_any_product(engine):
+    """Anything listed as Self Pay is worth 0 points (Justin Carrick)."""
+    result = evaluate(engine, make_row(product="SPORT-Z", type="SELF-PAY"))
+    assert result.rule_used == "SELF_PAY_ZERO"
+    assert result.base_points == 0
+
+
+def test_fit_incomplete_with_billable_status_still_scores(engine):
+    """FIT/INCOMPLETE + O/A/B earns points (David McClintock, May: 500)."""
+    result = evaluate(engine, make_row(product="MZ", insurance="Work Comp",
+                                       type="PA WC", fit_status="FIT/INCOMPLETE",
+                                       insurance_status="O/A/B"))
+    assert result.rule_used == "MZ_WORK_COMP"
+    assert result.base_points == 500
+
+
+def test_fit_incomplete_without_billable_status_scores_nothing(engine):
+    result = evaluate(engine, make_row(product="MZ", insurance="Work Comp",
+                                       type="PA WC", fit_status="FIT/INCOMPLETE",
+                                       insurance_status="AUTH REQUEST PENDING"))
+    assert result.base_points == 0
+
+
 def test_plus_marker_is_ancillary_too(engine):
     """'+' marks an AMP MI ancillary provider, same treatment as the star."""
     result = evaluate(engine, make_row(pro="PETER LASATER MD +", product="TCT",

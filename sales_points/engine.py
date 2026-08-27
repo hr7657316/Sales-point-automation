@@ -20,10 +20,18 @@ BMV_OVERRIDE = "BMV_OVERRIDE"
 ANCILLARY_MZ_AUTO_EXCEPTION = "ANCILLARY_MZ_AUTO_EXCEPTION"
 NO_RULE_MATCH = "NO_RULE_MATCH"
 INSURANCE_NOT_ELIGIBLE = "INSURANCE_NOT_ELIGIBLE"
+SUPPLY_ONLY = "SUPPLY_ONLY"
+SELF_PAY_ZERO = "SELF_PAY_ZERO"
 
 # Insurance Status values that earn points; anything else earns none at all.
 ELIGIBLE_STATUS_MARKERS = ("O/A/B", "OPEN/ACTIVE/BILLABLE", "BILLED",
                            "OPEN/BILLABLE")
+
+# Supplies shipped to an existing patient: no points (Patricia Elbayly,
+# April - "reps do not receive points for Electrodes Only or Wrap Only").
+SUPPLY_ONLY_MARKERS = ("ELECTRODE", "WRAP ONLY")
+
+SELF_PAY_MARKERS = ("SELF-PAY", "SELF PAY")
 SURGICAL_MARKER = "SURGICAL"
 OPEN_LITIGATED_MARKER = "NON-SURGICAL OPEN LITIGATED"
 
@@ -199,8 +207,13 @@ class PointEngine:
         result = RowResult(row=row)
 
         # Step 1: points exist only for devices actually marked Fit.
+        # FIT/INCOMPLETE still earns points when the insurance status is
+        # billable (David McClintock, May: FIT/INCOMPLETE + O/A/B paid 500);
+        # the status gate below decides. RETURNED and PATIENT DEMO never do.
         fit_values = self.rules.settings.fit_status_values
-        if fit_values and (row.fit_status or "").strip().lower() not in fit_values:
+        fit_text = (row.fit_status or "").strip().lower()
+        fit_incomplete = "fit" in fit_text and "incomplete" in fit_text
+        if fit_values and fit_text not in fit_values and not fit_incomplete:
             result.rule_used = NOT_FIT
             result.explanation = (
                 f"Fit status is '{row.fit_status or 'blank'}', not a Fit Complete "
@@ -217,6 +230,29 @@ class PointEngine:
             result.explanation = (
                 f"Insurance Status is '{row.insurance_status}', not O/A/B, "
                 "Billed or Billed without Auth, so no points are earned."
+            )
+            result.rep_allocations = self._allocate(row, 0, result)
+            return result
+
+        # Supplies for an existing device earn nothing: Electrodes Only,
+        # Wrap Only (per Allissa, Patricia Elbayly ruling).
+        if any(m in (row.product or "").upper() for m in SUPPLY_ONLY_MARKERS):
+            result.rule_used = SUPPLY_ONLY
+            result.explanation = (
+                f"Product '{row.product}' is a supply-only shipment "
+                "(Electrodes Only / Wrap Only), which earns no points."
+            )
+            result.rep_allocations = self._allocate(row, 0, result)
+            return result
+
+        # Anything listed as Self Pay is worth 0 points to the rep,
+        # regardless of product (per Allissa, Justin Carrick ruling).
+        pay_text = f"{row.insurance} {row.type} {row.insurance_status}".upper()
+        if any(m in pay_text for m in SELF_PAY_MARKERS):
+            result.rule_used = SELF_PAY_ZERO
+            result.explanation = (
+                "Self-Pay case: worth 0 points to the rep regardless of "
+                "product."
             )
             result.rep_allocations = self._allocate(row, 0, result)
             return result

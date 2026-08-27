@@ -2,6 +2,63 @@
 
 ---
 
+## RULINGS FROM ALLISSA (ten-question email, 2026-08-27) - all implemented
+
+She answered all ten row-level questions. Two more paid-sheet errors
+confirmed, four new rules learned, and the Gold Pair rule is now fully
+validated (her June list of seven patients matches the engine's seven
+exactly; April 10, May 11, July 15 also match her counts).
+
+New rules wired in:
+
+- **Derrick Plummer (April) was underpaid: 300 paid, 500 correct.** An RX
+  written BEFORE the surgery makes the fit a Post-Surgical fitting, and the
+  30-day window counts from the patient's EARLIEST device fit that month
+  (his MZ, 27 days post-op). Implemented in `surgical_kind`. Corrected
+  April paid total: 15,950 (Giordano +400, Plummer +200).
+- **Electrodes Only / Wrap Only = 0 points** (Patricia Elbayly). Supplies
+  shipped for an existing device never earn points. `SUPPLY_ONLY` gate.
+- **Self Pay = 0 points for any product** (Justin Carrick). `SELF_PAY_ZERO`.
+- **FIT/INCOMPLETE still earns points when the insurance status is
+  billable** (David McClintock, May: FIT/INCOMPLETE + O/A/B paid 500).
+  This single rule closed most of May's gap.
+- **Garment wording distinction refined**: "GARMENT NOT ELIGIBLE" (e.g.
+  due to the TPA - Joel Houston, standard 500) means no garment was sent
+  and the row leaves the ancillary program; hyphenated "GARMENT
+  NON-ELIGIBLE" stays ancillary on work comp (Wright, Strickland).
+- **June MZ Auto count confirmed**: her "2 were split accounts" are
+  Witcop and Marion Williams, whose REP column reads `LOPICCOLO / HOUSE
+  EAST` - the engine already splits them. No change needed.
+- **New-customer bonus source**: the Last Referral column (Q) on the
+  Affecto Tracker (link in her email). Not yet integrated.
+- **Honorarium folder** shared (Drive link in her email). Not yet
+  integrated.
+
+Still open after this round (the last four gaps):
+
+- **April -400**: her corrected sheet has 7 surgical TCTs; the engine
+  finds 6 with surgery dates. One of the six DOS="A" rows (Marple, Werner,
+  Martin, Daymude, Dach, Knapp) she counts as surgical - the report gives
+  no surgery date for any of them. Need: which patient, and where the
+  surgery date comes from.
+- **May +300**: the sheet pays only 21 standard MZ WCs to the engine's 22
+  (Courtney Walker via Brian Stone DO - unstarred in the report but on the
+  FFW list pending W9 - is the likely difference), and the sheet has a
+  third ancillary TCT the engine scores 0 (Joel Houston's TCT, blank
+  patient status). Two row-status questions.
+- **June -800**: Theresa Schaffer's May FP2A pair is paid IN JUNE when
+  both device statuses moved to billable - a cross-month mechanic the
+  engine cannot see from one month's report (worth ~550 of the gap: her
+  MZ 500 + the 8th Gold Pair 50). Needs month-over-month status tracking
+  or her confirmation of the remaining ~250.
+- **July -400**: the two new-customer bonuses (1,000, needs the Affecto
+  Tracker), offset by ~600 the engine scores that the sheet does not -
+  she says only 2 of the 3 starred MZ WCs count ancillary (Strickland
+  plus one; which of Hendal/Christian is standard, and why?). Her "200"
+  for Strickland also conflicts with the June rate change to 300.
+
+---
+
 ## RULINGS FROM ALLISSA (star-marker email) - all implemented
 
 Her answers to the star/ancillary questions, received 2026-08-26:

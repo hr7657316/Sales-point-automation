@@ -42,8 +42,14 @@ SURGICAL_MARKER = "SURGICAL"
 OPEN_LITIGATED_CODES = {"A", "C"}
 
 # There is no "garment fitted" column; the product description carries it.
-NO_GARMENT_MARKERS = ("GARMENT NOT LISTED", "NO GARMENT")
-GARMENT_INELIGIBLE_MARKERS = ("GARMENT NON-ELIGIBLE", "GARMENT NOT ELIGIBLE")
+# The two wordings are distinct per Allissa's paid rows: "NOT ELIGIBLE"
+# (e.g. due to the TPA) means no garment was sent, so the row leaves the
+# ancillary program entirely (Joel Houston, standard 500 on WC); the
+# hyphenated "NON-ELIGIBLE" stays ancillary on work comp (Roy Wright 200,
+# Carlie Strickland).
+NO_GARMENT_MARKERS = ("GARMENT NOT LISTED", "NO GARMENT", "GARMENT NOT ELIGIBLE")
+GARMENT_INELIGIBLE_MARKERS = ("GARMENT NON-ELIGIBLE", "GARMENT NON ELIGIBLE",
+                              "GARMENT NON-ELIBILE")
 
 
 def _require_openpyxl():
@@ -96,14 +102,22 @@ def is_fit(patient_status: str) -> bool:
     return "FIT" in text and "INCOMPLETE" not in text
 
 
-def surgical_kind(urgency: str, dos: str = "", fit=None) -> str:
+def surgical_kind(urgency: str, dos: str = "", fit=None, rx=None,
+                  min_fit=None) -> str:
     """Classify the surgical scenario, per Allissa's confirmed rules.
 
     The 30-day rule applies to TCT and TT only (the engine's rules already
-    scope it so), and the surgery date must fall within 30 days of the fit
-    date in either direction - Christopher Giordano (surgery 26 days before
-    the fit) is surgical at 700, Jenny Gunter (37 days before) is not and
-    falls to the open/litigated 300. Surgery dates never affect MZ.
+    scope it so). Surgery dates never affect MZ. Three paid rulings pin the
+    logic down:
+
+    - Christopher Giordano (RX after surgery, fit 26 days after it) is
+      Surgical at 700 - the surgery falls within 30 days of the fit.
+    - Jenny Gunter (RX after surgery, fit 37 days after it) is outside the
+      window and falls to the open/litigated 300.
+    - Derrick Plummer (RX three days BEFORE surgery, first device fit 27
+      days after it) is Post-Surgical at 500: an RX written pre-op makes
+      the fit a post-op fitting, and the patient's earliest fit date is
+      what the 30 days are counted against.
     """
     if SURGICAL_MARKER in (urgency or "").upper():
         return "surgical"
@@ -112,7 +126,17 @@ def surgical_kind(urgency: str, dos: str = "", fit=None) -> str:
         return ""
     if fit is None:
         return "surgical"
-    if abs((surgery - fit).days) <= 30:
+    if fit <= surgery:
+        # Fit ahead of an upcoming surgery: the classic Surgical case.
+        return "surgical" if (surgery - fit).days <= 30 else "outside-window"
+    if rx is not None and rx < surgery:
+        # RX written pre-op, patient fit after the surgery: Post-Surgical,
+        # counted against the patient's earliest fit (Plummer).
+        window_ref = min_fit or fit
+        if 0 <= (window_ref - surgery).days <= 30:
+            return "post-surgical"
+        return "outside-window"
+    if (fit - surgery).days <= 30:
         return "surgical"
     return "outside-window"
 
@@ -154,16 +178,31 @@ def rows_from_grid(grid: list) -> list:
     header_index = find_header_row(grid)
     columns = build_column_index(grid[header_index])
 
+    def field_of(raw, field: str) -> str:
+        position = columns.get(field)
+        if position is None or position >= len(raw):
+            return ""
+        return raw[position]
+
+    # First pass: each patient's earliest fit date. The post-surgical
+    # 30-day window counts from the patient's FIRST device fit that month
+    # (Derrick Plummer: MZ fit 27 days post-op, TCT five days later).
+    min_fit_by_patient: dict = {}
+    for raw in grid[header_index + 1:]:
+        patient = field_of(raw, "patient").split("\n")[0][:60]
+        fit = parse_date(field_of(raw, "fit_date"))
+        if patient and fit:
+            prior = min_fit_by_patient.get(patient)
+            if prior is None or fit < prior:
+                min_fit_by_patient[patient] = fit
+
     fit_rows = []
     for offset, raw in enumerate(grid[header_index + 1:], start=header_index + 2):
         if not any(cell for cell in raw):
             continue
 
         def get(field: str, _row=raw) -> str:
-            position = columns.get(field)
-            if position is None or position >= len(_row):
-                return ""
-            return _row[position]
+            return field_of(_row, field)
 
         # Rows with no rep and no product are spacers, not referrals.
         if not get("rep") and not get("product"):
@@ -171,7 +210,12 @@ def rows_from_grid(grid: list) -> list:
 
         patient_status = get("patient_status")
         fit_date = parse_date(get("fit_date"))
-        kind = surgical_kind(get("urgency"), get("dos_code"), fit_date)
+        patient_key = get("patient").split("\n")[0][:60]
+        kind = surgical_kind(
+            get("urgency"), get("dos_code"), fit_date,
+            rx=parse_date(get("date_rx_received")),
+            min_fit=min_fit_by_patient.get(patient_key),
+        )
         fit_rows.append(
             FitRow(
                 patient=get("patient").split("\n")[0][:60] or f"ROW-{offset}",
