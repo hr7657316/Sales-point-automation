@@ -38,9 +38,19 @@ New rules wired in:
   confirming the deduction rule. Which months a check is actually issued
   still comes from the monthly QuickBooks process (per the Honorarium
   SOP), so per-month payouts remain a needed input.
-- **Affecto Tracker NOT accessible**: the link in her email returns
-  not-found for this account. She needs to share it before the
-  new-customer bonus (Last Referral, column Q) can be automated.
+- **Affecto Tracker ingested** (via an xlsx copy, since the owner's
+  security limitations block viewer downloads and API access):
+  `rules/provider_referral_history.csv` holds all 2,502 providers from
+  the + PRO/REP tab with their LAST REFERRAL dates and FFW flags.
+  Structural finding: the tracker stores only the LATEST referral date,
+  overwritten on each new referral - so "was this account new in month
+  X" can only be checked against a snapshot taken AT month X. The saved
+  CSV is the first such baseline (as of 2026-08-27); the engine needs a
+  fresh snapshot each month before scoring. July's two new-customer
+  accounts therefore cannot be reconstructed from today's data - ask
+  Allissa which two they were (11 of Paul's 20 July providers now show
+  July-or-later dates). For permanent automation she still needs to
+  share the live sheet with download enabled for viewers.
 
 Still open after this round (the last four gaps):
 
