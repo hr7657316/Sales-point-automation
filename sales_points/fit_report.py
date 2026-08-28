@@ -119,25 +119,27 @@ def surgical_kind(urgency: str, dos: str = "", fit=None, rx=None,
       the fit a post-op fitting, and the patient's earliest fit date is
       what the 30 days are counted against.
     """
-    if SURGICAL_MARKER in (urgency or "").upper():
-        return "surgical"
     surgery = parse_date(dos)
     if surgery is None:
-        return ""
+        # No surgery date: the URGENCY marker is the only signal.
+        return "surgical" if SURGICAL_MARKER in (urgency or "").upper() else ""
+    # A real surgery date outranks the URGENCY marker: Hayden Graham was
+    # marked SURGICAL in April but his surgery was in January, months
+    # before the fit - Allissa ruled him Non-Surgical.
     if fit is None:
         return "surgical"
-    if fit <= surgery:
-        # Fit ahead of an upcoming surgery: the classic Surgical case.
-        return "surgical" if (surgery - fit).days <= 30 else "outside-window"
-    if rx is not None and rx < surgery:
-        # RX written pre-op, patient fit after the surgery: Post-Surgical,
-        # counted against the patient's earliest fit (Plummer).
+    if abs((fit - surgery).days) <= 30:
+        # Surgery within 30 days of this fit, either direction: Surgical.
+        # Confirmed by paid rows on both sides of the surgery date
+        # (Giordano 26d after, Hackney 1d after, Bujalski 7d before).
+        return "surgical"
+    if (fit - surgery).days > 30:
+        # This fit is late, but if the patient's FIRST device fit landed
+        # within 30 days post-op the case is Post-Surgical (Plummer: MZ
+        # fit 27 days post-op, TCT five days later at 32).
         window_ref = min_fit or fit
         if 0 <= (window_ref - surgery).days <= 30:
             return "post-surgical"
-        return "outside-window"
-    if (fit - surgery).days <= 30:
-        return "surgical"
     return "outside-window"
 
 

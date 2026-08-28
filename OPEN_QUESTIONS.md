@@ -2,6 +2,59 @@
 
 ---
 
+## RULINGS FROM ALLISSA (final-four email, 2026-08-28) - all implemented
+
+- **Hayden Graham (April) was overpaid: sheet 700 surgical, correct 300.**
+  His URGENCY column says SURGICAL but his surgery was in January, 85 days
+  before the April fit. Sixth confirmed paid-sheet error. Rule refined: a
+  real surgery date now outranks the URGENCY marker; the marker only
+  decides when no date exists.
+- **Surgical rule finalized** (validated against every paid date row):
+  surgery within 30 days of the fit, either direction = Surgical 700
+  (Giordano 26d after, Hackney 1d, Pondexter 6d, Caesar 10d, Bujalski 7d
+  before). Fit later than 30 days post-op but the patient's FIRST device
+  fit within 30 days post-op = Post-Surgical 500 (Plummer). Anything
+  further = open 300 (Gunter 37d, Hayden 85d).
+- **Courtney Walker = standard 500.** New rule: a provider is not
+  ancillary until their contract is FULLY completed and signed (W-9
+  included) - which is when the star/plus appears in the report. The
+  report marker therefore remains the source of truth.
+- **Joel Houston's blank patient status was a data error** - she corrected
+  the live May Fit Report to FIT; his TCT is the 3rd ancillary TCT at 200.
+  The engine, on the corrected report, scores it exactly so.
+- **Hendal and Christian are BOTH ancillary** (neither standard), and
+  **Strickland is 300** under the June rate - engine already scored all
+  three that way, so July's sheet overpaid those rows by 400.
+- **July new customers: Eric Tyler Czer DO and Philip St. Julien DO.**
+  Also revealed: she lists each month's new providers at the bottom of
+  every rep's point sheet - a per-month ground truth for the bonus that
+  survives the tracker's overwriting.
+
+## VALIDATION STANDING (after the above)
+
+January, March EXACT; July base points EXACT (new-customer bonus wiring
+pending). Remaining, each tied to named rows:
+
+- **February -400: Joanna Wright.** Surgery 12/04/25, fit 02/20/26 - 78
+  days, same shape as Hayden. Sheet paid 700; the rule says 300. Probable
+  7th paid-sheet error - needs her confirmation.
+- **April -400: the 6th surgical.** Her corrected April has 6 surgical
+  TCTs; the engine identifies 5 (Pearson, Salkeld, Tylka, Hackney,
+  Giordano). Which patient is the 6th, and where is the surgery date?
+- **May +500: the 22nd MZ.** The engine finds 22 standard MZ Work Comps
+  (including Walker and McClintock, both individually confirmed by her);
+  the sheet counted 21. Which patient was left off - a possible
+  underpayment.
+- **June -1200: Twaroski + Schaffer.** Dana Twaroski's surgery is 31 days
+  before the fit - one day outside the window (300 vs the sheet's 700);
+  is the boundary 30 days exactly? Theresa Schaffer's May FP2A pair pays
+  in June (~550) - the cross-month mechanic. ~250 residual after those.
+- **July: was David McClintock's TCT paid?** It completed in July
+  (surgery 07/07, fit 07/01, engine 700) but the sheet shows 8 surgical
+  to the engine's 9.
+
+---
+
 ## RULINGS FROM ALLISSA (ten-question email, 2026-08-27) - all implemented
 
 She answered all ten row-level questions. Two more paid-sheet errors
