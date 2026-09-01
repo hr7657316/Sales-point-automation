@@ -2,6 +2,29 @@
 
 ---
 
+## RULINGS FROM ALLISSA (09-01 email) - conversion solved, go-live proposed
+
+- **IL Auto TCT = 300 confirmed** (the "30" was a typo). Already
+  implemented.
+- **Points-to-dollars conversion SOLVED and verified**: commission =
+  the band payout from the rep's table PLUS the bonus of the highest
+  tier reached (Paul: $330 from 9,000 points, $1,850 from 14,000).
+  Implemented in `sales_points/comp.py`; reproduces all six dollar
+  figures on Paul's 2026 sheets exactly (Jan 9,250 / Feb 6,130 /
+  Mar 13,450 / Apr 10,150 / May 12,650 / Jun 12,650). Note: tables
+  differ per rep, some reps have a second Surgical-division table
+  (out of scope per Allissa). Liput's sheet dollar figures do not yet
+  reproduce from his table - likely the Zach-transfer period or an
+  older table; verify when his months are reconciled.
+- **Go-live plan proposed by Allissa**: the system generates AUGUST
+  points in parallel while she scores them by hand, numbers compared
+  side by side; from SEPTEMBER the system calculates and she reviews.
+  Needed for the August run: the "32) AUGUST 2026 FITTINGS" report
+  (not yet in Drive), a fresh month-end Affecto tracker snapshot, the
+  August honorarium invoices, and the new-customer + FP2A wiring.
+
+---
+
 ## RULINGS FROM ALLISSA (08-31 email) - all implemented
 
 - **Joanna Wright (Feb) confirmed at 300** - the 7th paid-sheet error

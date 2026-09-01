@@ -408,3 +408,15 @@ def test_roster_lookup_is_case_insensitive_on_the_id():
     engine = PointEngine(rep_names={"m1-11-69": "Maria LoPiccolo"})
     result = evaluate(engine, make_row())
     assert result.rep_allocations[0][0].name == "Maria LoPiccolo"
+
+
+# --- Points-to-dollars conversion (Allissa 09-01) --------------------------
+
+def test_comp_conversion_matches_every_paul_sheet_value():
+    """Band payout + highest bonus tier, verified against all six months
+    carrying a final dollar figure on Paul's 2026 sheets."""
+    from sales_points.comp import load_comp_plans
+    plan = load_comp_plans()["LOPICCOLO"]
+    for points, expected in [(14450, 9250), (12850, 6130), (19050, 13450),
+                             (15350, 10150), (18050, 12650), (18750, 12650)]:
+        assert plan.commission_for(points) == expected
