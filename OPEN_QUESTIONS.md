@@ -2,6 +2,65 @@
 
 ---
 
+## RULINGS FROM ALLISSA (08-31 email) - all implemented
+
+- **Joanna Wright (Feb) confirmed at 300** - the 7th paid-sheet error
+  (paid 700). **February is now EXACT** at the corrected 12,450.
+- **The post-surgical window is EXACTLY 30 days** - Dana Twaroski (31
+  days) is 300, making her 700 the **8th confirmed error**. Corrected
+  June: 18,350.
+- **Her definitive April surgical list (Pearson, Salkeld, Plummer, Tylka,
+  Hackney, Giordano) matches the engine's classification row for row** -
+  there was never a 7th surgical. **April is EXACT** at 15,150.
+- **May's 22nd MZ is Theresa Schaffer** - rightly unpaid in May (Auth
+  Request Pending at the time). The engine's +500 on today's data is
+  status drift: her status changed in the live sheet after May. Scoring
+  must use month-end snapshots. May is conceptually EXACT.
+- **July's "9th surgical" is Christopher Davis** - paid through the split
+  account section, not the surgical line. No discrepancy; the engine
+  splits him correctly. **July is EXACT** at 22,650 (base points).
+- **All missing product rules provided and added** to point_rules.csv:
+  IL Auto (MZ 50 / TCT 300 - her email says "30" but cites the 300
+  category, flagged as a typo to confirm), Knee Scooter 0, Garment Only
+  0, TENS under MZ, and Railroad / Slip & Fall / Personal Injury / Auto
+  PIP at TCT 300 / MZ 250.
+- **The Zach arrangement**: Zach Schneider was a Sales Associate who
+  could not earn commission, so his points were assigned to Austin
+  Liput. No other arrangements like it currently exist.
+- **Comp tables found**: each rep template's bottom holds a banded
+  points-to-dollars table (captured in rules/comp_plans.csv - Paul $60k
+  base/payout from 6,000 pts; Liput $96k base/from 9,000 pts). CAVEAT:
+  a naive band lookup does not reproduce the sheets' second number
+  (Paul Apr: 15,350 pts -> table 8,300 vs sheet 10,150) - the exact
+  conversion needs one follow-up before the dollars step is built.
+- **Honorarium rule confirmed**: deduction lands in the month of the
+  speaking engagement, at 50% of the payout, shown at the sheet bottom.
+
+## PAUL LOPICCOLO - FINAL VALIDATION STATE
+
+| Month | Engine | Corrected paid | |
+| --- | --- | --- | --- |
+| January | 14,450 | 14,450 | EXACT |
+| February | 12,450 | 12,450 | EXACT |
+| March | 18,750 | 18,750 | EXACT |
+| April | 15,150 | 15,150 | EXACT |
+| May | 18,350 | 17,850 | +500 = Schaffer status drift (explained) |
+| June | 17,550 | 18,350 | -800 = Schaffer FP2A cross-month + split-line accounting |
+| July | 22,650 | 22,650 | EXACT (base; new-customer bonus wiring pending) |
+
+**Eight paid-sheet errors confirmed by Allissa across seven months:**
+Giordano -400, Gunter +200, Snyder +300, Plummer -200, Hayden +400,
+July ancillary miscount +400, Wright +400, Twaroski +400.
+
+## AUSTIN LIPUT - SECOND-REP STATE (points totals)
+
+January EXACT and April -400 out of the box. February -2,450, March
+-5,850, May +1,300, July -2,900 (of which 2,000 = his four July
+new-customer bonuses, not yet wired). Remaining Liput gaps need his
+row-level pass - same drill as Paul, next session.
+
+---
+
 ## RULINGS FROM ALLISSA (final-four email, 2026-08-28) - all implemented
 
 - **Hayden Graham (April) was overpaid: sheet 700 surgical, correct 300.**

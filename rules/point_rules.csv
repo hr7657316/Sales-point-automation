@@ -7,7 +7,7 @@ TCT_WC_NONSURG_TRICARE_USDL_COLD,TCT WC Non-Surgical / Tri-care / USDL / Cold Th
 MZ_OH_WC_RENTAL_TRIAL,MZ / TENS OH Work Comp 13 Month Rental OR Trial,MZ|TENS,no,oh work comp|ohio work comp|oh wc,rental|trial|13 month,,,50,50,95,POINT RULES,,
 MZ_PA_MI_FL_AUTO,"MZ PA, MI, FL Auto",MZ,no,pa auto|mi auto|fl auto|pennsylvania auto|michigan auto|mich auto|florida auto,,,,250,250,90,POINT RULES,,
 MZ_WORK_COMP,MZ Work Comp (TENS counted with MZ),MZ|TENS,no,work comp|wc,,,,500,500,80,POINT RULES,,
-MZ_GOV_AND_COMMERCIAL,MZ Medicare/Auto/DE Auto/Tricare-USDL/Medicaid/Commercial,MZ,no,medicare|auto|de auto|tri-care|tricare|usdl|medicaid|commercial,,,,50,50,50,POINT RULES,,
+MZ_GOV_AND_COMMERCIAL,MZ Medicare/Auto/DE Auto/Tricare-USDL/Medicaid/Commercial (incl IL Auto per Allissa 08-31),MZ,no,medicare|auto|de auto|tri-care|tricare|usdl|medicaid|commercial|il auto,,,,50,50,50,POINT RULES,,
 SPORTZ,MZ SportZ,SportZ,no,,,,,0,0,60,POINT RULES,,
 BONE_STIM_OR_LASER,Bone Stim or Laser,Bone Stim|Bone Stim/Laser|Laser,no,,,,,500,500,60,POINT RULES,,
 BACK_BRACE_WC_MEDICARE,Back Brace WC or Medicare,Back Brace|LSO,no,work comp|wc|medicare,,,,250,250,60,POINT RULES,,2026-05-31
@@ -20,3 +20,9 @@ ANC_COLD_THERAPY,Ancillary Cold Therapy (Hot or Cold),TCT|DME|DME/Ancillary|Cold
 ANC_COLD_THERAPY,Ancillary Cold Therapy (Hot or Cold),TCT|DME|DME/Ancillary|Cold Therapy,yes,,cold therapy,,,100,0,95,POINT RULES,2026-06-01,
 ANC_MZ_WORK_COMP,Ancillary MZ Work Comp,MZ,yes,work comp|wc,,,,200,100,80,POINT RULES,,2026-05-31
 ANC_MZ_WORK_COMP,Ancillary MZ Work Comp,MZ,yes,work comp|wc,,,,300,0,80,POINT RULES,2026-06-01,
+KNEE_SCOOTER,Knee Scooter - 0 points regardless of insurance (Allissa 08-31),knee scooter,no,,,,,0,0,70,ALLISSA EMAIL 08-31,,
+GARMENT_ONLY,Garment Only - 0 points (Allissa 08-31),garment only,no,,,,,0,0,70,ALLISSA EMAIL 08-31,,
+TCT_RR_PI_SLIPFALL_PIP,TCT Railroad Claim / Slip & Fall / Personal Injury / Auto PIP - 300 (Allissa 08-31),tct,no,railroad|slip & fall|slip and fall|personal injury|pip,,,,300,300,86,ALLISSA EMAIL 08-31,,
+MZ_RR_PI_SLIPFALL_PIP,MZ Railroad Claim / Slip & Fall / Personal Injury / Auto PIP - 250 (Allissa 08-31),mz|tens,no,railroad|slip & fall|slip and fall|personal injury|pip,,,,250,250,86,ALLISSA EMAIL 08-31,,
+KNEE_SCOOTER_ANC,Knee Scooter - 0 points regardless of insurance (Allissa 08-31),knee scooter,yes,,,,,0,0,70,ALLISSA EMAIL 08-31,,
+GARMENT_ONLY_ANC,Garment Only - 0 points (Allissa 08-31),garment only,yes,,,,,0,0,70,ALLISSA EMAIL 08-31,,
