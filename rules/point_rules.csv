@@ -26,3 +26,5 @@ TCT_RR_PI_SLIPFALL_PIP,TCT Railroad Claim / Slip & Fall / Personal Injury / Auto
 MZ_RR_PI_SLIPFALL_PIP,MZ Railroad Claim / Slip & Fall / Personal Injury / Auto PIP - 250 (Allissa 08-31),mz|tens,no,railroad|slip & fall|slip and fall|personal injury|pip,,,,250,250,86,ALLISSA EMAIL 08-31,,
 KNEE_SCOOTER_ANC,Knee Scooter - 0 points regardless of insurance (Allissa 08-31),knee scooter,yes,,,,,0,0,70,ALLISSA EMAIL 08-31,,
 GARMENT_ONLY_ANC,Garment Only - 0 points (Allissa 08-31),garment only,yes,,,,,0,0,70,ALLISSA EMAIL 08-31,,
+ANC_MZ_AUTO,Ancillary MZ Auto (garment fitted) - WC\AUTO table auto column,MZ,yes,auto,,,,100,100,75,POINT RULES WC\AUTO col,,2026-05-31
+ANC_MZ_AUTO,Ancillary MZ Auto (garment fitted) - WC\AUTO table auto column,MZ,yes,auto,,,,0,0,75,POINT RULES WC\AUTO col,2026-06-01,
