@@ -150,7 +150,6 @@ def build_workbook(results: list, month_label: str, out_path: Path,
         _set(ws, f"B{row}", 50, BLUE, "#,##0")
         _set(ws, f"C{row}", data["gold"], BLUE, "0")
         _set(ws, f"D{row}", f"=B{row}*C{row}", NORMAL, "#,##0")
-        gold_row = row
         row += 1
         _set(ws, f"A{row}", "1 Split Account Multiplier 50% (half of shared-account points)")
         _set(ws, f"B{row}", "Split")
@@ -159,7 +158,6 @@ def build_workbook(results: list, month_label: str, out_path: Path,
         ws[f"D{row}"].comment = Comment(
             "Rows whose REP column names two reps; this rep's half is listed here. "
             "See ALL ROWS for the patients.", "engine")
-        split_row = row
         row += 1
         _set(ws, f"A{row}", "1 TCT or MZ new customer bonus FIT COMPLETE (CANDIDATES - confirm)")
         cands = candidates.get(key, [])
