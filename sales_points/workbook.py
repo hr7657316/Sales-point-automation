@@ -261,7 +261,8 @@ def build_workbook(results: list, month_label: str, out_path: Path,
 
     # ---- review ------------------------------------------------------------
     ws = wb.create_sheet("REVIEW")
-    for i, h in enumerate(["Rep", "Patient", "Provider", "Product", "Type", "Why flagged"], start=1):
+    review_heads = ["Rep", "Patient", "Provider", "Product", "Type", "Why flagged"]
+    for i, h in enumerate(review_heads, start=1):
         _set(ws, f"{get_column_letter(i)}1", h, BOLD, fill=HEAD_FILL)
         ws.column_dimensions[get_column_letter(i)].width = 30
     r = 2
