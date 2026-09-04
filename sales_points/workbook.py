@@ -183,7 +183,9 @@ def build_workbook(results: list, month_label: str, out_path: Path,
         row += 1
         if plan_key and plan_key in plans:
             plan = plans[plan_key]
-            _set(ws, f"A{row}", "Commission ($) - band payout + highest bonus tier (per rep comp table)", BOLD)
+            _set(ws, f"A{row}",
+                 "Commission ($) - band payout + highest bonus tier (per rep comp table)",
+                 BOLD)
             base_pts = sum(p for _, _, p in data["rows"])
             _set(ws, f"D{row}", plan.commission_for(base_pts), BOLD, "$#,##0")
             ws[f"D{row}"].comment = Comment(
@@ -191,7 +193,9 @@ def build_workbook(results: list, month_label: str, out_path: Path,
                 "re-run after honorarium/new-customer entries change.", "engine")
             row += 1
         row += 1
-        _set(ws, f"A{row}", "New provider CANDIDATES this month (in this report, not in any Jan-Jul report)", BOLD)
+        _set(ws, f"A{row}",
+             "New provider CANDIDATES this month (in this report, not in any Jan-Jul report)",
+             BOLD)
         row += 1
         for prov, lr in cands:
             _set(ws, f"A{row}", prov)
@@ -207,8 +211,10 @@ def build_workbook(results: list, month_label: str, out_path: Path,
             _set(ws, f"A{row}", f"{res.row.patient} - {res.row.product[:40]}")
             _set(ws, f"B{row}", res.rule_used)
             row += 1
-        _set(ws, f"A{row + 1}", "Blue = input from the Fit Report; black = formula. "
-                                  "Every row's reasoning is on the ALL ROWS tab.", Font(name=FONT, italic=True))
+        _set(ws, f"A{row + 1}",
+             "Blue = input from the Fit Report; black = formula. "
+             "Every row's reasoning is on the ALL ROWS tab.",
+             Font(name=FONT, italic=True))
 
     # ---- summary -----------------------------------------------------------
     heads = ["Rep", "Code", "Base points (engine)", "Gold pairs", "Split rows",
@@ -217,7 +223,8 @@ def build_workbook(results: list, month_label: str, out_path: Path,
         _set(summary, f"{get_column_letter(i)}1", h, BOLD, fill=HEAD_FILL)
         summary.column_dimensions[get_column_letter(i)].width = 24
     r = 2
-    for key, (name, ref, pts, plan_key, data) in sorted(rep_totals.items(), key=lambda kv: -kv[1][2]):
+    ranked = sorted(rep_totals.items(), key=lambda kv: -kv[1][2])
+    for key, (name, ref, pts, plan_key, data) in ranked:
         _set(summary, f"A{r}", name)
         _set(summary, f"B{r}", key)
         _set(summary, f"C{r}", f"={ref}", NORMAL, "#,##0")
@@ -228,8 +235,9 @@ def build_workbook(results: list, month_label: str, out_path: Path,
         if plan_key and plan_key in plans:
             _set(summary, f"H{r}", plans[plan_key].commission_for(pts), NORMAL, "$#,##0")
         r += 1
-    _set(summary, f"A{r + 1}", f"Source: {month_label} Fit Report, scored by the point engine; "
-                               "honorarium and new-customer counts to be entered per rep tab.",
+    _set(summary, f"A{r + 1}",
+         f"Source: {month_label} Fit Report, scored by the point engine; "
+         "honorarium and new-customer counts to be entered per rep tab.",
          Font(name=FONT, italic=True))
 
     # ---- all rows ----------------------------------------------------------
@@ -268,8 +276,10 @@ def build_workbook(results: list, month_label: str, out_path: Path,
         for row_cells in sheet.iter_rows():
             for c in row_cells:
                 if c.font.name != FONT:
-                    c.font = Font(name=FONT, bold=c.font.bold, italic=c.font.italic, color=c.font.color)
-                c.alignment = Alignment(vertical="top", wrap_text=(sheet.title == "ALL ROWS" and c.column == 13))
+                    c.font = Font(name=FONT, bold=c.font.bold, italic=c.font.italic,
+                                  color=c.font.color)
+                wrap = sheet.title == "ALL ROWS" and c.column == 13
+                c.alignment = Alignment(vertical="top", wrap_text=wrap)
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     wb.save(out_path)
