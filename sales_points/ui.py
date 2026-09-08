@@ -89,8 +89,9 @@ def _score(path: Path, month: str) -> dict:
     reps.sort(key=lambda r: -r[2])
     flagged = [(r.row.rep, r.row.patient, r.row.product, r.row.type, r.explanation)
                for r in results if r.review_needed]
-    STATE.update(out_dir=out_dir, result=dict(
-        rows=len(results), reps=reps, flagged=flagged, workbook=wb_path.name, month=label))
+    STATE.update(out_dir=out_dir, result={
+        "rows": len(results), "reps": reps, "flagged": flagged,
+        "workbook": wb_path.name, "month": label})
     return STATE["result"]
 
 
