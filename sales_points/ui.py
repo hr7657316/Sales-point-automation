@@ -7,6 +7,7 @@ http://localhost:8765. Nothing leaves the laptop.
 
 from __future__ import annotations
 
+import contextlib
 import html
 import tempfile
 import threading
@@ -180,10 +181,8 @@ def main() -> int:
     url = f"http://localhost:{PORT}"
     print(f"Point engine UI running at {url}  (Ctrl+C to stop)")
     threading.Timer(0.6, lambda: webbrowser.open(url)).start()
-    try:
+    with contextlib.suppress(KeyboardInterrupt):
         server.serve_forever()
-    except KeyboardInterrupt:
-        pass
     return 0
 
 
