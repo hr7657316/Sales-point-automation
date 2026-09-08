@@ -9,3 +9,7 @@ ignore = [
     "DTZ007",
     "DTZ011",
 ]
+
+[lint.per-file-ignores]
+# The UI module embeds an HTML/CSS template; long lines are the markup.
+"sales_points/ui.py" = ["E501"]
