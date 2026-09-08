@@ -228,6 +228,6 @@ def test_real_date_cells_read_like_the_csv_export():
     from sales_points.fit_report import _cell
     from sales_points.parsing import parse_date
 
-    assert _cell(datetime.datetime(2026, 8, 1, 0, 0)) == "08-01-26"
+    assert _cell(datetime.datetime(2026, 8, 1, 0, 0)) == "08-01-26"  # noqa: DTZ001
     assert _cell(datetime.date(2026, 7, 20)) == "07-20-26"
-    assert parse_date(_cell(datetime.datetime(2026, 8, 1))) == datetime.date(2026, 8, 1)
+    assert parse_date(_cell(datetime.datetime(2026, 8, 1))) == datetime.date(2026, 8, 1)  # noqa: DTZ001
