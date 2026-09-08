@@ -45,7 +45,25 @@ def build_parser() -> argparse.ArgumentParser:
                         help="CSV of rep honorarium payouts for the month")
     parser.add_argument("--rep-roster", type=Path, default=None,
                         help="CSV mapping Rep ID to the rep's full name")
+    parser.add_argument("--month", default=None,
+                        help='Month label for the workbook, e.g. "AUGUST 2026"')
     return parser
+
+
+def _load_csv(path: Path) -> list:
+    """A CSV is either a real Fit Report export (banner rows, PATIENT STATUS /
+    PRODUCT header) or the tidy sample layout; detect which."""
+    import csv
+
+    from .fit_report import find_header_row, rows_from_grid
+
+    with open(path, newline="", encoding="utf-8", errors="replace") as handle:
+        grid = list(csv.reader(handle))
+    try:
+        find_header_row(grid)
+    except ValueError:
+        return load_fit_report(path)
+    return rows_from_grid(grid)
 
 
 def main(argv=None) -> int:
@@ -56,7 +74,7 @@ def main(argv=None) -> int:
     if args.fit_report.suffix.lower() in {".xlsx", ".xlsm"}:
         rows = load_fit_report_workbook(args.fit_report)
     else:
-        rows = load_fit_report(args.fit_report)
+        rows = _load_csv(args.fit_report)
     engine = PointEngine(
         rulebook=RuleBook.load(args.rules_dir),
         rx_history=load_rx_history(args.rx_history),
@@ -71,6 +89,18 @@ def main(argv=None) -> int:
     summary = write_summary(args.out_dir, summaries)
     review = write_review_queue(args.out_dir, results)
 
+    # The Allissa-style workbook: one tab per rep, plus audit trail.
+    workbook_path = None
+    try:
+        from .workbook import build_workbook
+        label = args.month or args.fit_report.stem.upper()
+        workbook_path = build_workbook(
+            results, label, args.out_dir / f"{label.replace(' ', '_')}_Point_Sheets_ENGINE.xlsx",
+            comp_plans_path=str((args.rules_dir or Path("rules")) / "comp_plans.csv"),
+        )
+    except ImportError:
+        pass  # openpyxl missing: CSV outputs above are still written
+
     flagged = sum(1 for r in results if r.review_needed)
     print(f"Rows processed:        {len(results)}")
     print(f"Reps with points:      {len(summaries)}")
@@ -79,6 +109,8 @@ def main(argv=None) -> int:
     print(f"Rep point sheets:      {len(rep_sheets)} in {args.out_dir / 'rep_point_sheets'}")
     print(f"Commission summary:    {summary}")
     print(f"Review queue:          {review}")
+    if workbook_path:
+        print(f"Point sheet workbook:  {workbook_path}")
     if flagged:
         print("\nReview the flagged rows before sending point sheets to RSMs.")
     return 0
