@@ -10,6 +10,7 @@ Read-only: it opens the workbook and never writes to it.
 
 from __future__ import annotations
 
+import datetime
 from pathlib import Path
 
 from .models import FitRow
@@ -65,7 +66,14 @@ def _require_openpyxl():
 
 
 def _cell(value) -> str:
-    return "" if value is None else str(value).strip()
+    """Cell to text. Real date cells (the .xlsx export stores dates as
+    dates, the CSV export as MM-DD-YY text) are rendered the CSV way so
+    both exports flow through the same parsing."""
+    if value is None:
+        return ""
+    if isinstance(value, datetime.datetime | datetime.date):
+        return value.strftime("%m-%d-%y")
+    return str(value).strip()
 
 
 def find_header_row(rows: list) -> int:

@@ -218,3 +218,16 @@ def test_tct_with_a_surgery_date_scores_the_surgical_rate():
     result = engine.evaluate_row(parsed, {})
     assert result.rule_used == "TCT_WC_SURGICAL"
     assert result.base_points == 700
+
+
+def test_real_date_cells_read_like_the_csv_export():
+    """The .xlsx export stores dates as date cells; they must parse exactly
+    like the CSV export's MM-DD-YY text (the August 2026 regression)."""
+    import datetime
+
+    from sales_points.fit_report import _cell
+    from sales_points.parsing import parse_date
+
+    assert _cell(datetime.datetime(2026, 8, 1, 0, 0)) == "08-01-26"
+    assert _cell(datetime.date(2026, 7, 20)) == "07-20-26"
+    assert parse_date(_cell(datetime.datetime(2026, 8, 1))) == datetime.date(2026, 8, 1)
