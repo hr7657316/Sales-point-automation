@@ -28,3 +28,4 @@ KNEE_SCOOTER_ANC,Knee Scooter - 0 points regardless of insurance (Allissa 08-31)
 GARMENT_ONLY_ANC,Garment Only - 0 points (Allissa 08-31),garment only,yes,,,,,0,0,70,ALLISSA EMAIL 08-31,,
 ANC_MZ_AUTO,Ancillary MZ Auto (garment fitted) - WC\AUTO table auto column,MZ,yes,auto,,,,100,100,75,POINT RULES WC\AUTO col,,2026-05-31
 ANC_MZ_AUTO,Ancillary MZ Auto (garment fitted) - WC\AUTO table auto column,MZ,yes,auto,,,,0,0,75,POINT RULES WC\AUTO col,2026-06-01,
+COLD_THERAPY_ANY_INSURANCE,TT / Cold Therapy (hot or cold) - 100 on any insurance incl. Auto and Personal Injury (Allissa 09-09: same row as TCT WC Non-Surgical/Tricare/TT),cold therapy|hot therapy|tt-|tt ,no,,,,,100,100,60,ALLISSA CHAT 09-09,,
