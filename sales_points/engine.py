@@ -73,8 +73,12 @@ class PointEngine:
                  rx_history: dict | None = None,
                  awarded_customers: set | None = None,
                  honorariums: dict | None = None,
-                 rep_names: dict | None = None):
+                 rep_names: dict | None = None,
+                 new_providers: dict | None = None):
         self.rules = rulebook or RuleBook.load()
+        # rep code -> list of provider names Allissa declares as NEW this
+        # month; each earns the NEW_CUSTOMER bonus at rep level.
+        self.new_providers = {k.upper(): list(v) for k, v in (new_providers or {}).items()}
         # rep id -> full name, so rep-facing sheets are not just surnames
         self.rep_names = {k.upper(): v for k, v in (rep_names or {}).items()}
         # customer key -> date of that customer's most recent prior RX
@@ -367,8 +371,37 @@ class PointEngine:
                 summary.rows.append((result, rep, points))
 
         self._apply_five_plus_bonus(summaries)
+        self._apply_declared_new_providers(summaries)
         self._apply_honorarium_deductions(summaries)
         return summaries
+
+    def _apply_declared_new_providers(self, summaries: dict) -> None:
+        """Allissa's monthly list of new providers per rep -> NEW_CUSTOMER
+        bonus per provider (doubled in Dec/Jan per settings)."""
+        if not self.new_providers:
+            return
+        bonus = self.rules.bonus("NEW_CUSTOMER")
+        points_each = bonus.points if bonus else 500
+        month = None
+        for summary in summaries.values():
+            dates = [r.row.fit_date for r, _, _ in summary.rows if r.row.fit_date]
+            if dates:
+                month = max(dates).month
+                break
+        doubled = bool(bonus and bonus.doubles_in_dec_jan
+                       and month in self.rules.settings.double_bonus_months)
+        for key, summary in summaries.items():
+            code = (summary.rep_id or "").upper()
+            names = self.new_providers.get(code) or self.new_providers.get(key.upper())
+            if not names:
+                continue
+            each = points_each * (2 if doubled else 1)
+            total = each * len(names)
+            summary.rep_level_bonus += total
+            summary.notes.append(
+                f"NEW_CUSTOMER +{total}: {len(names)} new provider(s) declared - "
+                + ", ".join(names) + (" (doubled - Dec/Jan)" if doubled else "")
+            )
 
     def _apply_five_plus_bonus(self, summaries: dict) -> None:
         bonus = self.rules.bonus("FIVE_PLUS_NEW_CUSTOMER")

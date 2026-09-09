@@ -22,6 +22,7 @@ from .cli import _load_csv
 from .comp import load_comp_plans
 from .engine import PointEngine
 from .fit_report import load_fit_report_workbook
+from .loaders import parse_new_providers_text
 from .report import write_master_sheet, write_rep_sheets, write_review_queue, write_summary
 from .rules import RuleBook
 from .workbook import REP_NAMES, build_workbook
@@ -56,6 +57,8 @@ PAGE = """<!doctype html><html><head><meta charset="utf-8">
  <form method="post" action="/run" enctype="multipart/form-data" onsubmit="document.getElementById('s').style.display='inline'">
   <label>Fit Report (.xlsx or .csv)</label><input type="file" name="report" required accept=".xlsx,.xlsm,.csv">
   <label>Month label</label><input type="text" name="month" value="%(month)s">
+  <label>New providers this month (optional) - one per line as <code>REP CODE: Provider name</code>, e.g. <code>M1-11-69: Rohan Venida DO</code></label>
+  <textarea name="newprov" rows="4" style="width:100%%;max-width:640px;padding:10px;border:1px solid #cfd4da;border-radius:8px;font-size:14px">%(newprov)s</textarea>
   <br><button type="submit">Run the engine</button><span id="s" class="spin">Scoring...</span>
  </form>
 </div>
@@ -64,12 +67,13 @@ PAGE = """<!doctype html><html><head><meta charset="utf-8">
 </div></body></html>"""
 
 
-def _score(path: Path, month: str) -> dict:
+def _score(path: Path, month: str, newprov_text: str = "") -> dict:
     if path.suffix.lower() in {".xlsx", ".xlsm"}:
         rows = load_fit_report_workbook(path)
     else:
         rows = _load_csv(path)
-    engine = PointEngine(rulebook=RuleBook.load(Path("rules")))
+    declared = parse_new_providers_text(newprov_text)
+    engine = PointEngine(rulebook=RuleBook.load(Path("rules")), new_providers=declared)
     results, summaries = engine.run(rows)
     out_dir = Path(tempfile.mkdtemp(prefix="points_"))
     write_master_sheet(out_dir, results)
@@ -78,11 +82,12 @@ def _score(path: Path, month: str) -> dict:
     write_review_queue(out_dir, results)
     label = month or path.stem.upper()
     wb_path = build_workbook(results, label,
-                             out_dir / f"{label.replace(' ', '_')}_Point_Sheets_ENGINE.xlsx")
+                             out_dir / f"{label.replace(' ', '_')}_Point_Sheets_ENGINE.xlsx",
+                             declared_new_providers=declared)
     plans = load_comp_plans("rules/comp_plans.csv")
     reps = []
     for key, s in summaries.items():
-        pts = s.total_points if hasattr(s, "total_points") else s.row_points
+        pts = s.gross_points
         name, plan_key = REP_NAMES.get(key, (key, None))
         dollars = plans[plan_key].commission_for(pts) if plan_key in plans else None
         gold = sum(1 for res, rep, p in s.rows if any("GOLD" in b for b in res.bonuses_applied))
@@ -92,7 +97,7 @@ def _score(path: Path, month: str) -> dict:
                for r in results if r.review_needed]
     STATE.update(out_dir=out_dir, result={
         "rows": len(results), "reps": reps, "flagged": flagged,
-        "workbook": wb_path.name, "month": label})
+        "workbook": wb_path.name, "month": label, "newprov": newprov_text})
     return STATE["result"]
 
 
@@ -118,7 +123,7 @@ def _render_results(res: dict | None) -> str:
           f'<a href="/download/review_queue.csv">Review queue (.csv)</a></div>')
     return (f'<div class="card"><h1>{html.escape(res["month"])}</h1>{stats}{dl}</div>'
             f'<div class="card"><h2>Points by rep</h2>{table}'
-            f'<p class="muted">Base points before honorarium and new-customer bonuses. '
+            f'<p class="muted">Points include declared new-provider bonuses; honorarium not yet deducted. '
             f'Commission shown where the rep\'s comp table is loaded.</p></div>'
             f'<div class="card"><h2>Rows needing a human decision</h2>{flags}</div>')
 
@@ -145,6 +150,7 @@ class Handler(BaseHTTPRequestHandler):
                            {"Content-Disposition": f'attachment; filename="{f.name}"'})
                 return
         page = PAGE % {"month": html.escape((STATE["result"] or {}).get("month", "AUGUST 2026")),
+                       "newprov": html.escape((STATE["result"] or {}).get("newprov", "")),
                        "results": _render_results(STATE["result"])}
         self._send(page.encode())
 
@@ -153,10 +159,12 @@ class Handler(BaseHTTPRequestHandler):
         raw = self.rfile.read(length)
         msg = message_from_bytes(
             b"Content-Type: " + self.headers["Content-Type"].encode() + b"\r\n\r\n" + raw, policy=HTTP)
-        month, upload, fname = "", None, "report.csv"
+        month, upload, fname, newprov = "", None, "report.csv", ""
         for part in msg.iter_parts():
             if part.get_param("name", header="content-disposition") == "month":
                 month = part.get_content().strip()
+            elif part.get_param("name", header="content-disposition") == "newprov":
+                newprov = part.get_content()
             elif part.get_param("name", header="content-disposition") == "report":
                 fname = part.get_filename() or fname
                 upload = part.get_payload(decode=True)
@@ -166,7 +174,7 @@ class Handler(BaseHTTPRequestHandler):
         tmp = Path(tempfile.mkdtemp(prefix="fitreport_")) / fname
         tmp.write_bytes(upload)
         try:
-            _score(tmp, month)
+            _score(tmp, month, newprov)
         except Exception as exc:  # show the error on the page instead of dying
             self._send(f"<pre>Could not score this file:\n{html.escape(str(exc))}</pre>"
                        f"<a href='/'>Back</a>".encode())

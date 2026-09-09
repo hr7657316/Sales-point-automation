@@ -111,3 +111,34 @@ def load_rep_roster(path: Path) -> dict:
             if rep_id and full:
                 roster[rep_id.upper()] = full
     return roster
+
+
+def load_new_providers(path) -> dict:
+    """CSV with columns rep_code,provider -> {rep_code: [providers]}.
+    Also accepts free text lines 'M1-11-69: Provider Name' or
+    'M1-11-69, Provider Name' (what the UI text box collects)."""
+    if not path:
+        return {}
+    import re as _re
+    out: dict = {}
+    with open(path, newline="", encoding="utf-8", errors="replace") as handle:
+        for line in handle:
+            line = line.strip()
+            if not line or line.lower().startswith("rep_code"):
+                continue
+            m = _re.match(r"^\s*([A-Za-z0-9-]+)\s*[:,]\s*(.+)$", line)
+            if m:
+                out.setdefault(m.group(1).upper(), []).append(m.group(2).strip())
+    return out
+
+
+def parse_new_providers_text(text: str) -> dict:
+    """Same grammar as load_new_providers, from a pasted block of text."""
+    import re as _re
+    out: dict = {}
+    for line in (text or "").splitlines():
+        line = line.strip()
+        m = _re.match(r"^\s*([A-Za-z0-9-]+)\s*[:,]\s*(.+)$", line)
+        if m:
+            out.setdefault(m.group(1).upper(), []).append(m.group(2).strip())
+    return out

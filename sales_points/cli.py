@@ -11,6 +11,7 @@ from .loaders import (
     load_awarded_customers,
     load_fit_report,
     load_honorariums,
+    load_new_providers,
     load_rep_roster,
     load_rx_history,
 )
@@ -45,6 +46,9 @@ def build_parser() -> argparse.ArgumentParser:
                         help="CSV of rep honorarium payouts for the month")
     parser.add_argument("--rep-roster", type=Path, default=None,
                         help="CSV mapping Rep ID to the rep's full name")
+    parser.add_argument("--new-providers", type=Path, default=None,
+                        help="CSV/text of rep_code,provider declared NEW this month "
+                             "(500-point bonus each)")
     parser.add_argument("--month", default=None,
                         help='Month label for the workbook, e.g. "AUGUST 2026"')
     return parser
@@ -81,6 +85,7 @@ def main(argv=None) -> int:
         awarded_customers=load_awarded_customers(args.awarded_customers),
         honorariums=load_honorariums(args.honorariums),
         rep_names=load_rep_roster(args.rep_roster),
+        new_providers=load_new_providers(args.new_providers),
     )
     results, summaries = engine.run(rows)
 

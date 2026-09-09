@@ -86,9 +86,11 @@ def _set(ws, ref, value, font=NORMAL, fmt=None, fill=None):
 
 def build_workbook(results: list, month_label: str, out_path: Path,
                    new_customer_candidates: dict | None = None,
-                   comp_plans_path: str = "rules/comp_plans.csv") -> Path:
+                   comp_plans_path: str = "rules/comp_plans.csv",
+                   declared_new_providers: dict | None = None) -> Path:
     plans = load_comp_plans(comp_plans_path)
     candidates = new_customer_candidates or {}
+    declared = {k.upper(): v for k, v in (declared_new_providers or {}).items()}
 
     # ---- gather per-rep data ---------------------------------------------
     per_rep: dict = defaultdict(lambda: {
@@ -159,10 +161,12 @@ def build_workbook(results: list, month_label: str, out_path: Path,
             "Rows whose REP column names two reps; this rep's half is listed here. "
             "See ALL ROWS for the patients.", "engine")
         row += 1
-        _set(ws, f"A{row}", "1 TCT or MZ new customer bonus FIT COMPLETE (CANDIDATES - confirm)")
+        declared_here = declared.get(key, [])
+        _set(ws, f"A{row}", "1 TCT or MZ new customer bonus FIT COMPLETE"
+                            + ("" if declared_here else " (enter confirmed count)"))
         cands = candidates.get(key, [])
         _set(ws, f"B{row}", 500, BLUE, "#,##0")
-        _set(ws, f"C{row}", 0, BLUE, "0")
+        _set(ws, f"C{row}", len(declared_here), BLUE, "0")
         _set(ws, f"D{row}", f"=B{row}*C{row}", NORMAL, "#,##0")
         ws[f"C{row}"].comment = Comment(
             "Enter the confirmed count. Candidates from the tracker/history check are "
@@ -186,7 +190,7 @@ def build_workbook(results: list, month_label: str, out_path: Path,
             _set(ws, f"A{row}",
                  "Commission ($) - band payout + highest bonus tier (per rep comp table)",
                  BOLD)
-            base_pts = sum(p for _, _, p in data["rows"])
+            base_pts = sum(p for _, _, p in data["rows"]) + 500 * len(declared_here)
             _set(ws, f"D{row}", plan.commission_for(base_pts), BOLD, "$#,##0")
             ws[f"D{row}"].comment = Comment(
                 "Computed from rules/comp_plans.csv on the base points shown; "
