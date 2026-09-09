@@ -2,6 +2,49 @@
 
 ---
 
+## RULINGS FROM ALLISSA (09-09 chat + email) - all implemented
+
+- **M1-21-1 = Reynold Stoner**, on a plan where **1 point = $1**
+  (marked `POINTS_EQUAL_DOLLARS` in `rules/comp_plans.csv`). August: 400
+  points -> $400.
+- **Dean Sotereanos referrals split Reynold / House East** - already
+  handled by the REP "A / B" split logic.
+- **Cold Therapy on Auto / PI = 100** (rule `COLD_THERAPY_ANY_INSURANCE`).
+- **Logan Yearego (M1-21-8) is a Sales Associate** - points tracked, no
+  commission yet (dash in the dollar column). **Carlo DeAngelo
+  (M1-21-70)** is a new Sales Associate on the same footing; may first
+  appear in September.
+- **New providers arrive by email each month.** August list received
+  09-09: 15 providers across 6 reps, saved as
+  `inputs/new_providers/2026-08.txt` (rep code + provider name only; no
+  patient data). Feed it with `--new-providers` or paste into the UI's
+  "New providers" box. Each declared provider adds the NEW_CUSTOMER
+  bonus (500; doubled Dec/Jan) to that rep.
+  - Cross-check: 14 of the 15 were already on the engine's own
+    candidate list (`output/2026-08/new_customer_candidates.csv`, built
+    from "in the August report, absent from Jan-Jul 2026 reports").
+    The 15th, **Melissa Litwin NP (Christensen)**, is in the August
+    report but was not a candidate - she has a 2026 referral before
+    August, so either the 12-month look-back is measured differently or
+    the earlier referral did not count. Allissa's list is authoritative;
+    the engine applies it as given.
+  - The other 18 engine candidates are NOT on her list, which is
+    expected: the engine could only look back to Jan 2026, while the
+    rule is "no RX in the last 12 months".
+  - August with the list applied: Liput 24,700 / $16,000; Lopiccolo
+    17,500 / $11,750; Schneider 17,175 / $11,750; Thapa 12,400 / $8,630;
+    Miller 9,150 / $3,630; Hink 8,650 / $5,330; Christensen 6,000 / $800;
+    Janerich 4,225 / $1,600; Yearego 4,200 / -; House East 3,400 / -;
+    House West 2,450 / -; Stoner 400 / $400; Crosby 300 / $0.
+- **OPEN (new): Taylor Miller has 6 new providers in August.** The
+  FIVE_PLUS_NEW_CUSTOMER bonus (+1,000 for "5 or more new-customer fit
+  completes in the first 30 calendar days") is NOT added, because
+  question 4 below (what the 30 days count from, and whether it is per
+  month) is still unanswered. If Allissa confirms it applies, Miller
+  becomes 10,150 points / $4,430 (band 10,000-10,999).
+
+---
+
 ## RULINGS FROM ALLISSA (09-01 email) - conversion solved, go-live proposed
 
 - **IL Auto TCT = 300 confirmed** (the "30" was a typo). Already

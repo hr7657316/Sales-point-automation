@@ -1,0 +1,18 @@
+# AUGUST 2026 new providers, as emailed by Allissa on 2026-09-09. One per line: REP CODE: Provider name
+# Use with:  python3 -m sales_points <fit report> --month "AUGUST 2026" --new-providers inputs/new_providers/2026-08.txt
+# or paste the lines (without these # comments) into the UI "New providers" box.
+M1-19-20: MICHAEL REDONDO MD
+M1-19-20: STEVEN CHANDLER DO
+M1-19-20: MELISSA LITWIN NP
+M1-11-3: DAVID RAAB DO
+M1-11-3: NICHOLAS QUERCETTI III DO
+M1-21-4: OWEN BARMADA PA-C
+M1-21-4: JOSHUA M ALPERT MD
+M1-21-4: ADAM SCHIFF MD
+M1-21-4: MARC BRESLOW MD
+M1-21-4: EMILY YANIZ PA-C
+M1-21-4: ARRION SHELTON NP
+M1-21-8: YILING RAN PT
+M1-11-31: RICHARD MITCHELL MD
+M1-11-31: JENNIFER GNEGY PT
+M1-21-08: LARRY CHOU MD
