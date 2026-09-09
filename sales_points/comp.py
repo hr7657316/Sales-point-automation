@@ -28,9 +28,15 @@ class CompPlan:
     bands: list = field(default_factory=list)
     # (threshold_points, bonus_usd), ascending
     bonus_tiers: list = field(default_factory=list)
+    # Some reps are on a different scale where 1 point = $1 (Reynold
+    # Stoner, per Allissa 09-09). Marked in comp_plans.csv with the note
+    # POINTS_EQUAL_DOLLARS.
+    points_equal_dollars: bool = False
 
     def commission_for(self, points: int) -> int | None:
         """Dollar commission for a month's points; None when out of table."""
+        if self.points_equal_dollars:
+            return int(points)
         payout = None
         for low, high, amount in self.bands:
             if low <= points <= high:
@@ -51,6 +57,9 @@ def load_comp_plans(path: str | Path = "rules/comp_plans.csv") -> dict:
         for row in csv.DictReader(handle):
             rep = row["rep"].strip().upper()
             plan = plans.setdefault(rep, CompPlan(rep=rep))
+            if "POINTS_EQUAL_DOLLARS" in (row.get("note") or "").upper():
+                plan.points_equal_dollars = True
+                continue
             low = int(row["band_low"])
             high = int(row["band_high"])
             payout = int(row["payout_usd"]) if row["payout_usd"] else 0

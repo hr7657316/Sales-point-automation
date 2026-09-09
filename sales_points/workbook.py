@@ -34,7 +34,7 @@ REP_NAMES = {
     "M1-21-4": ("Taylor Miller", "MILLER"),
     "M1-19-20": ("Matthew Christensen", "CHRISTENSEN"),
     "M1-22-1": ("Jon Janerich", "JANERICH"),
-    "M1-21-8": ("Logan Yearego", None),
+    "M1-21-8": ("Logan Yearego (Sales Associate - no commission yet)", None),
     "M1-21-21": ("Pete Crosby", "CROSBY"),
     "M1-21-0": ("House East", None),
     "M1-21-2": ("House West", None),

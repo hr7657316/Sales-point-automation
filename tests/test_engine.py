@@ -420,3 +420,11 @@ def test_comp_conversion_matches_every_paul_sheet_value():
     for points, expected in [(14450, 9250), (12850, 6130), (19050, 13450),
                              (15350, 10150), (18050, 12650), (18750, 12650)]:
         assert plan.commission_for(points) == expected
+
+
+def test_points_equal_dollars_plan_for_reynold_stoner():
+    """Reynold is on a 1 point = $1 scale (Allissa 09-09)."""
+    from sales_points.comp import load_comp_plans
+    plan = load_comp_plans()["STONER"]
+    assert plan.commission_for(1500) == 1500
+    assert plan.commission_for(400) == 400
