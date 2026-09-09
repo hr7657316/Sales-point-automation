@@ -39,6 +39,7 @@ REP_NAMES = {
     "M1-21-0": ("House East", None),
     "M1-21-2": ("House West", None),
     "M1-21-1": ("Reynold Stoner", "STONER"),
+    "M1-21-70": ("Carlo DeAngelo (Sales Associate - no commission yet)", None),
 }
 
 # rule id -> worksheet category label (Allissa's wording)
