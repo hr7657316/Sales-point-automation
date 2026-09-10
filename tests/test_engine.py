@@ -275,26 +275,62 @@ def test_gold_pair_excluded_for_ancillary(engine):
     assert mz.bonus_points == 0
 
 
-def test_five_plus_new_customer_bonus():
-    engine = PointEngine(rx_history={f"DR NEW{i}": None for i in range(6)})
+def test_five_plus_bonus_for_one_new_provider_sending_five_rxs():
+    """Allissa (09-10): one new provider sending 5+ TCT/MZ RXs within 30
+    calendar days earns the rep +1,000."""
+    engine = PointEngine(new_providers={"M1-11-69": ["DR NEW"]})
     rows = [
-        make_row(patient=f"P-{i}", doc=f"DR NEW{i}", fit_date=date(2026, 8, i + 1))
+        make_row(patient=f"P-{i}", doc="DR NEW", fit_date=date(2026, 8, 1 + 5 * i))
         for i in range(5)
     ]
     _results, summaries = engine.run(rows)
     summary = summaries["M1-11-69"]
-    assert summary.rep_level_bonus == 1000
-    assert any("FIVE_PLUS" in note for note in summary.notes)
+    assert summary.rep_level_bonus == 500 + 1000
+    assert any("FIVE_PLUS" in note and "DR NEW" in note for note in summary.notes)
 
 
-def test_five_plus_bonus_not_awarded_for_four_new_customers():
-    engine = PointEngine(rx_history={f"DR NEW{i}": None for i in range(6)})
+def test_five_plus_bonus_matches_affecto_suffixed_provider_name():
+    engine = PointEngine(new_providers={"M1-11-69": ["STEVEN CHANDLER DO"]})
+    rows = [
+        make_row(patient=f"P-{i}", doc="STEVEN CHANDLER DO (1)", fit_date=date(2026, 8, 1 + i))
+        for i in range(5)
+    ]
+    _results, summaries = engine.run(rows)
+    assert summaries["M1-11-69"].rep_level_bonus == 1500
+
+
+def test_five_plus_bonus_not_awarded_for_five_different_new_providers():
+    """Six new providers with one RX each is 6 x 500 and no 5+ bonus
+    (Taylor Miller, August 2026)."""
+    engine = PointEngine(new_providers={"M1-11-69": [f"DR NEW{i}" for i in range(6)]})
     rows = [
         make_row(patient=f"P-{i}", doc=f"DR NEW{i}", fit_date=date(2026, 8, i + 1))
+        for i in range(6)
+    ]
+    _results, summaries = engine.run(rows)
+    assert summaries["M1-11-69"].rep_level_bonus == 6 * 500
+
+
+def test_five_plus_bonus_not_awarded_when_rxs_span_more_than_30_days():
+    engine = PointEngine(new_providers={"M1-11-69": ["DR NEW"]})
+    days = [date(2026, 8, 1), date(2026, 8, 9), date(2026, 8, 17),
+            date(2026, 8, 25), date(2026, 9, 2)]  # 32 days first to last
+    rows = [
+        make_row(patient=f"P-{i}", doc="DR NEW", fit_date=day)
+        for i, day in enumerate(days)
+    ]  # only four RXs fall inside any 30-day window
+    _results, summaries = engine.run(rows)
+    assert summaries["M1-11-69"].rep_level_bonus == 500
+
+
+def test_five_plus_bonus_not_awarded_for_four_rxs():
+    engine = PointEngine(new_providers={"M1-11-69": ["DR NEW"]})
+    rows = [
+        make_row(patient=f"P-{i}", doc="DR NEW", fit_date=date(2026, 8, i + 1))
         for i in range(4)
     ]
     _results, summaries = engine.run(rows)
-    assert summaries["M1-11-69"].rep_level_bonus == 0
+    assert summaries["M1-11-69"].rep_level_bonus == 500
 
 
 # --- Splits ----------------------------------------------------------------

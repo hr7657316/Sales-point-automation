@@ -36,12 +36,19 @@
     Miller 9,150 / $3,630; Hink 8,650 / $5,330; Christensen 6,000 / $800;
     Janerich 4,225 / $1,600; Yearego 4,200 / -; House East 3,400 / -;
     House West 2,450 / -; Stoner 400 / $400; Crosby 300 / $0.
-- **OPEN (new): Taylor Miller has 6 new providers in August.** The
-  FIVE_PLUS_NEW_CUSTOMER bonus (+1,000 for "5 or more new-customer fit
-  completes in the first 30 calendar days") is NOT added, because
-  question 4 below (what the 30 days count from, and whether it is per
-  month) is still unanswered. If Allissa confirms it applies, Miller
-  becomes 10,150 points / $4,430 (band 10,000-10,999).
+- **5+ new-customer bonus RESOLVED (Allissa, 09-10):** the +1,000 applies
+  only when ONE new provider sends 5+ RXs (TCT/MZ) within a 30-day
+  calendar window - e.g. Owen Barmada sending five TCT/MZ RXs would earn
+  Miller an extra 1,000. It is not the number of new providers a rep
+  signed, so Miller's six new providers earn 6 x 500 and no 5+ bonus
+  (she confirmed none of Miller's new providers sent 5+ in August).
+  Implemented per provider in `_apply_five_plus_bonus`; question 4 below
+  is closed.
+  - **Engine finding for Allissa to confirm:** David Raab DO (new for
+    Zach Schneider) sent **13 TCT/MZ RXs across 9 patients** between
+    08-14 and 08-31, so the engine pays Schneider the +1,000. Schneider
+    August: 18,175 points / $12,650 (was 17,175 / $11,750). Nicholas
+    Quercetti III sent 2, no bonus. No other rep's new provider reached 5.
 
 ---
 
@@ -590,16 +597,13 @@ next month?
 
 ---
 
-### 4. The 5+ new customer bonus — 30 days from when?
+### 4. The 5+ new customer bonus — 30 days from when?  (ANSWERED 09-10)
 
 The rule reads "5 or more fit complete in the first 30 calendar days".
 
-**Assumption used:** 30 calendar days from the rep's **first** qualifying
-new-customer Fit Complete, counted within the month being processed.
-
-**Question:** is the window the first 30 days of the month, 30 days from the rep's
-first new account, or 30 days from the rep's start date? And is the bonus awarded
-once per month or once per rep, ever?
+**Ruling:** counted per new PROVIDER, not per rep: +1,000 when a single new
+provider sends 5 or more TCT/MZ RXs within any 30-calendar-day window.
+Awarded once per qualifying provider. Implemented.
 
 ---
 

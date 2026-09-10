@@ -2,7 +2,7 @@
 # Use with:  python3 -m sales_points <fit report> --month "AUGUST 2026" --new-providers inputs/new_providers/2026-08.txt
 # or paste the lines (without these # comments) into the UI "New providers" box.
 M1-19-20: MICHAEL REDONDO MD
-M1-19-20: STEVEN CHANDLER DO
+M1-19-20: STEVEN CHANDLER DO (1)
 M1-19-20: MELISSA LITWIN NP
 M1-11-3: DAVID RAAB DO
 M1-11-3: NICHOLAS QUERCETTI III DO

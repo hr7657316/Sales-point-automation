@@ -404,39 +404,67 @@ class PointEngine:
             )
 
     def _apply_five_plus_bonus(self, summaries: dict) -> None:
+        """+1,000 when ONE new provider sends 5+ RXs (TCT/MZ fit rows)
+        within a 30-calendar-day window.
+
+        Per Allissa (09-10): "that 1000 would only apply if one or more of
+        the new providers sent in 5+ RX's in a 30 day calendar" - e.g. a new
+        provider sending five TCT/MZ RXs earns the rep an extra 1,000. It is
+        NOT the count of new providers a rep signed (Taylor Miller's six new
+        providers in August 2026 earn 6 x 500 and no 5+ bonus). Awarded once
+        per qualifying provider.
+        """
         bonus = self.rules.bonus("FIVE_PLUS_NEW_CUSTOMER")
         if not bonus:
             return
         window = self.rules.settings.five_plus_window_days
 
-        for summary in summaries.values():
-            qualifying = [
-                result
-                for result, _rep, _points in summary.rows
-                if any(b.startswith("NEW_CUSTOMER") for b in result.bonuses_applied)
-                and bonus.applies_to_product(result.row.product)
-            ]
-            if len(qualifying) < 5:
-                continue
+        def norm(name: str) -> str:
+            return "".join(ch for ch in (name or "").upper() if ch.isalnum())
 
-            fit_dates = [r.row.fit_date for r in qualifying if r.row.fit_date]
-            if not fit_dates:
-                continue
-            start = min(fit_dates)
-            in_window = [d for d in fit_dates if (d - start).days < window]
-            if len(in_window) < 5:
-                continue
+        for key, summary in summaries.items():
+            code = (summary.rep_id or "").upper()
+            # New providers: Allissa's declared list for this rep, plus any
+            # provider whose row earned the row-level NEW_CUSTOMER bonus.
+            declared = list(self.new_providers.get(code)
+                            or self.new_providers.get(key.upper()) or [])
+            new_providers = {norm(n): n for n in declared}
+            for result, _rep, _points in summary.rows:
+                if any(b.startswith("NEW_CUSTOMER") for b in result.bonuses_applied):
+                    new_providers.setdefault(norm(result.row.doc), result.row.doc)
 
-            points = bonus.points
-            label = "FIVE_PLUS_NEW_CUSTOMER"
-            if bonus.doubles_in_dec_jan and start.month in self.rules.settings.double_bonus_months:
-                points *= 2
-                label += " (doubled - Dec/Jan)"
-            summary.rep_level_bonus += points
-            summary.notes.append(
-                f"{label} +{points}: {len(in_window)} new-customer Fit Completes "
-                f"within {window} calendar days of {start.isoformat()}."
-            )
+            for provider_key, provider in sorted(new_providers.items()):
+                if not provider_key:
+                    continue
+                dates = sorted(
+                    result.row.fit_date
+                    for result, _rep, _points in summary.rows
+                    if result.row.fit_date
+                    and result.total_points > 0
+                    and bonus.applies_to_product(result.row.product)
+                    # Affecto sometimes suffixes a provider ("... DO (1)").
+                    and norm(result.row.doc).startswith(provider_key)
+                )
+                hit = None
+                for index, start in enumerate(dates):
+                    count = sum(1 for d in dates[index:] if (d - start).days < window)
+                    if count >= 5:
+                        hit = (start, count)
+                        break
+                if hit is None:
+                    continue
+                start, count = hit
+                points = bonus.points
+                label = "FIVE_PLUS_NEW_CUSTOMER"
+                if (bonus.doubles_in_dec_jan
+                        and start.month in self.rules.settings.double_bonus_months):
+                    points *= 2
+                    label += " (doubled - Dec/Jan)"
+                summary.rep_level_bonus += points
+                summary.notes.append(
+                    f"{label} +{points}: new provider {provider} sent {count} "
+                    f"TCT/MZ RXs within {window} calendar days of {start.isoformat()}."
+                )
 
     def _apply_honorarium_deductions(self, summaries: dict) -> None:
         if not self.honorariums:
