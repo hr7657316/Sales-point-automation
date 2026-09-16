@@ -174,10 +174,42 @@ def _as_int(value: str, default: int = 0) -> int:
         return default
 
 
+@dataclass
+class RepOverride:
+    """Credit a provider's referrals to one rep regardless of what the Fit
+    Report's REP cell says (rules/rep_overrides.csv). Used when Affecto
+    lists an account as a split that is not one - Shashank Musku MD (AHN)
+    is Paul Lopiccolo's alone, per Allissa (09-16)."""
+
+    provider: str
+    rep: str
+    effective_from: datetime.date | None = None
+    effective_to: datetime.date | None = None
+    note: str = ""
+
+    def matches(self, provider: str, on: datetime.date | None) -> bool:
+        if _norm_name(provider) != _norm_name(self.provider):
+            return False
+        if on is None:
+            return True
+        if self.effective_from and on < self.effective_from:
+            return False
+        return not (self.effective_to and on > self.effective_to)
+
+
+def _norm_name(value: str) -> str:
+    # First line only: the Fit Report sometimes stacks the office under the
+    # provider in one cell.
+    first = (value or "").split("\n")[0]
+    return "".join(ch for ch in first.upper() if ch.isalnum())
+
+
 class RuleBook:
     """The full set of rules the engine evaluates against."""
 
-    def __init__(self, point_rules: list, bonuses: list, settings: Settings):
+    def __init__(self, point_rules: list, bonuses: list, settings: Settings,
+                 rep_overrides: list | None = None):
+        self.rep_overrides = list(rep_overrides or [])
         # Highest priority first so the most specific rule wins deterministically.
         self.point_rules = sorted(point_rules, key=lambda r: -r.priority)
         self.bonuses = bonuses
@@ -190,7 +222,33 @@ class RuleBook:
             point_rules=cls._load_point_rules(rules_dir / "point_rules.csv"),
             bonuses=cls._load_bonuses(rules_dir / "bonuses.csv"),
             settings=cls._load_settings(rules_dir / "settings.csv"),
+            rep_overrides=cls._load_rep_overrides(rules_dir / "rep_overrides.csv"),
         )
+
+    def rep_override_for(self, provider: str, on: datetime.date | None):
+        """The RepOverride that applies to this provider on this date, if any."""
+        for override in self.rep_overrides:
+            if override.matches(provider, on):
+                return override
+        return None
+
+    @staticmethod
+    def _load_rep_overrides(path: Path) -> list:
+        if not Path(path).exists():
+            return []
+        overrides = []
+        with open(path, newline="", encoding="utf-8-sig") as handle:
+            for row in csv.DictReader(handle):
+                if not (row.get("provider") or "").strip():
+                    continue
+                overrides.append(RepOverride(
+                    provider=row["provider"].strip(),
+                    rep=(row.get("rep") or "").strip(),
+                    effective_from=_as_date(row.get("effective_from", "")),
+                    effective_to=_as_date(row.get("effective_to", "")),
+                    note=(row.get("note") or "").strip(),
+                ))
+        return overrides
 
     @staticmethod
     def _load_point_rules(path: Path) -> list:

@@ -464,3 +464,37 @@ def test_points_equal_dollars_plan_for_reynold_stoner():
     plan = load_comp_plans()["STONER"]
     assert plan.commission_for(1500) == 1500
     assert plan.commission_for(400) == 400
+
+
+# --- Rep overrides ----------------------------------------------------------
+
+def test_rep_override_credits_whole_account_to_one_rep(engine):
+    """Allissa (09-16): Shashank Musku MD (AHN) is NOT a split account even
+    though the Fit Report REP cell says LOPICCOLO / HOUSE EAST."""
+    result = evaluate(engine, make_row(
+        pro="SHASHANK MUSKU MD (AHN)", product="MZ ONLY (GARMENT NON-ELIGIBLE)",
+        insurance="PA AUTO", type="", fit_date=date(2026, 8, 12),
+        rep="LOPICCOLO (M1-11-69) / HOUSE EAST (M1-21-0)",
+    ))
+    assert result.is_split is False
+    assert [(r.rep_id, p) for r, p in result.rep_allocations] == [("M1-11-69", result.total_points)]
+    assert "Rep override" in result.explanation
+
+
+def test_rep_override_respects_effective_from(engine):
+    """Before August 2026 the account was Franco's; the override must not
+    rewrite history."""
+    result = evaluate(engine, make_row(
+        pro="SHASHANK MUSKU MD (AHN)", product="TCT", insurance="PA WC",
+        type="Surgical", fit_date=date(2026, 4, 25), rep="FRANCO (M1-11-6)",
+    ))
+    assert [r.rep_id for r, _ in result.rep_allocations] == ["M1-11-6"]
+    assert "Rep override" not in result.explanation
+
+
+def test_other_split_accounts_still_split(engine):
+    result = evaluate(engine, make_row(
+        pro="DEAN SOTEREANOS MD", product="MZ", insurance="MI Auto", type="",
+        rep="REYNOLD (M1-21-1) / HOUSE EAST (M1-21-0)",
+    ))
+    assert result.is_split is True

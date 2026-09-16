@@ -1,6 +1,22 @@
 # Open questions for Allissa
 
 ---
+## RULING FROM ALLISSA (09-16) - Musku is not a split account
+
+- **Shashank Musku MD (AHN) is Paul Lopiccolo's account alone.** The
+  August Fit Report lists his 8 referrals as "LOPICCOLO / HOUSE EAST" and
+  the engine was halving them. New file `rules/rep_overrides.csv`
+  credits the provider to one rep regardless of the REP cell (effective
+  2026-08-01; in Mar/Apr 2026 the account was FRANCO's, untouched).
+  Each affected row's explanation now says "Rep override".
+- **August impact:** Paul 17,500 -> **18,450 points / $12,650** (band
+  18,000-18,999 $10,800 + $1,850 tier; was $11,750). House East 3,400
+  -> 2,450 (no commission either way). Nobody else moves.
+- The same file is the place for any future "not really a split" or
+  "moved to rep X" ruling - one CSV line, no code change.
+
+---
+
 
 ## RULINGS FROM ALLISSA (09-09 chat + email) - all implemented
 

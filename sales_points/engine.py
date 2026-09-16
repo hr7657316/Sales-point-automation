@@ -319,7 +319,16 @@ class PointEngine:
         return result
 
     def _allocate(self, row: FitRow, total: int, result: RowResult) -> list:
-        reps = parse_reps(row.rep, self.rules.settings.split_separator)
+        override = self.rules.rep_override_for(row.pro, row.fit_date or row.date_rx_received)
+        if override is not None:
+            reps = parse_reps(override.rep, self.rules.settings.split_separator)
+            result.explanation += (
+                f" Rep override: {row.pro.splitlines()[0] if row.pro else ''} is credited "
+                f"to {override.rep} in full, not split as the report shows."
+                + (f" ({override.note.split('.')[0]}.)" if override.note else "")
+            )
+        else:
+            reps = parse_reps(row.rep, self.rules.settings.split_separator)
         for rep in reps:
             full_name = self.rep_names.get((rep.rep_id or "").upper())
             if full_name:
