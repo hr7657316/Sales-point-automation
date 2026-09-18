@@ -1,6 +1,74 @@
 # Open questions for Allissa
 
 ---
+## AUGUST 2026 SIDE-BY-SIDE (Allissa's email 09-18) - 9 of 13 reps EXACT
+
+Her point sheets (read-only, AUGUST 2026 tabs) vs the engine after the
+rulings below were wired in:
+
+| Rep | Engine | Allissa | Note |
+|---|---|---|---|
+| Liput | 24,700 | 24,700 | exact |
+| Schneider | 18,175 | 18,175 | exact (incl. Raab 5+ bonus) |
+| Hink | 9,150 | 9,150 | exact once Deidre Seiler CRNP declared new |
+| Christensen | 6,000 | 6,000 | exact |
+| Janerich | 4,425 | 4,425 | exact after the Teliha garment rule |
+| Yearego | 4,600 | 4,600 | exact after the MI Auto A/C rule |
+| House East | 2,050 | 2,050 | exact after the Sotereanos override |
+| Crosby | 300 | 300 | exact |
+| Thapa | 12,900 | 13,000 | gap = 100 pharmacy (Penn Highlands), not in Fit Report |
+| Reynold | 1,000 | 1,420 | gap = 420 pharmacy (15 Dean + 6 JRM), not in Fit Report |
+| Lopiccolo | 18,450 | 19,250 | her EMAIL says 18,450 = engine; her SHEET says 19,250 - see Q1 |
+| Miller | 9,150 | 8,700 | Bridgett Mathis USDL: engine 500, she 50 - see Q2 |
+| House West | 2,450 | 3,150 | Ronald Richhart: status NON-COMPENSABLE in the report - see Q3 |
+
+### Rulings implemented from the email
+- **Reynold Stoner does NOT split Dean Sotereanos** - the REYNOLD / HOUSE
+  EAST rep ID is internal tracking; full value to Reynold
+  (`rules/rep_overrides.csv`). House East loses the 400 half-points.
+- **Michigan Auto TCT is "DOS or non DOS (NON-Litigated)"** - a DOS code of
+  A or C does not make it litigated; only a litigation status does. Gaddy,
+  Tuten, Akhilomhen = 500 each (Tuten and Akhilomhen were 300).
+- **"IN LITIGATION - ATTY REPRESENTED" is a payable status** (Shawn
+  Kaufman, MZ WC 500). A litigation status prices TCT at the 300 line.
+- **MZ ONLY (GARMENT NON-ELIGIBLE) from an ancillary provider on WC is
+  standard 500** from the June 2026 point sheet - no wrap sent, so no
+  ancillary credit (Shane Teliha, Belinda Stiffey). Date-gated at
+  2026-06-01 because Roy Wright (Feb) was confirmed correct at the
+  ancillary 200 under the pre-June sheet.
+- **Hink's August new provider: Deidre Seiler CRNP** (from his sheet; not
+  in the 09-09 email). Added to `inputs/new_providers/2026-08.txt`.
+- **Cold Therapy rows now sit on the "1 TCT WC Non-Surgical/Tri care-USDL
+  SX/TT(hot or cold)" line** of the workbook (Tracy Caruso, Zamira Colvin).
+- Not changed: **Ara N Bush MD +** (Ameen Ismael, House West). Her "1 TCT
+  WC Non-Surgical" is the ANCILLARY line label (200) - the engine already
+  scores him 200 + 300. Match.
+
+### Questions back to Allissa
+1. **Paul Lopiccolo - email vs sheet.** The email says 18,450 (= engine).
+   The sheet says 19,250. The three lines that differ: (a) MZ Work Comp
+   17 vs engine 16 - Lyndsay Jamison (Schweizer) is split with House East;
+   is she counted on the MZ WC line AND in the split? (b) Gold Pair 10 vs
+   9 - Benjamin Letso has Cold Therapy + MZ, not TCT + MZ. Does a TT count
+   toward the Gold Pair? (c) Split 2,300 vs 1,800 - House East's own sheet
+   says HOUSE/LOPICCOLO 1,800. The extra 500 looks like Fidel Castro and
+   Ronald Thorhauer (Ravi Ved *, MZ Auto WITH garment) at 250 each; the
+   cheat sheet pays ancillary MZ Auto 0 unless no garment is fitted.
+2. **USDL patients.** Five USDL MZ(TENS) work-comp rows this month. Four
+   are on MZ WC 500 in her sheets (Danski/Yearego, Gilliam/Liput,
+   Vontor/Schneider, McGowan/Christensen) and one, Bridgett Mathis
+   (Miller), is on the 50 Tricare-USDL line. Which is right? The engine
+   scores all five at 500 until she says.
+3. **Ronald Richhart (House West).** Insurance status in the Fit Report is
+   NON-COMPENSABLE, so the engine pays 0; her sheet has TCT WC Surgical
+   700. Has the status changed since the export, or is a non-compensable
+   claim payable?
+4. **Pharmacy and M1Sx points** (Thapa 100 + 550 M1Sx, Reynold 420) are not
+   in the Fit Report. Proposal: a small "manual adjustments" box in the UI
+   (rep code, line, quantity) so these land on the sheet each month.
+
+---
+
 ## RULING FROM ALLISSA (09-16) - Musku is not a split account
 
 - **Shashank Musku MD (AHN) is Paul Lopiccolo's account alone.** The

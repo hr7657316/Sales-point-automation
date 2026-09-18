@@ -47,6 +47,7 @@ CATEGORY_LABELS = {
     "TCT_WC_SURGICAL": "1 TCT Work comp Surgical",
     "TCT_WC_POST_SURGICAL": "1 TCT WC Post-Surgical MD/DO/PA/NP/DPM (<30 Post-op)",
     "TCT_WC_NONSURG_TRICARE_USDL_COLD": "1 TCT WC Non-Surgical/Tri care-USDL SX/TT(hot or cold)",
+    "COLD_THERAPY_ANY_INSURANCE": "1 TCT WC Non-Surgical/Tri care-USDL SX/TT(hot or cold)",
     "TCT_NONSURG_WC_AUTO_LITIGATED": "1 TCT Non Surgical WC & Auto open or Litigated SX or non SX",
     "TCT_MICH_AUTO_NON_LITIGATED": "1 TCT Mich Auto SX or Non SX (NON-Litigated)",
     "TCT_RR_PI_SLIPFALL_PIP": "1 TCT Railroad / Slip & Fall / Personal Injury / Auto PIP",

@@ -25,7 +25,11 @@ SELF_PAY_ZERO = "SELF_PAY_ZERO"
 
 # Insurance Status values that earn points; anything else earns none at all.
 ELIGIBLE_STATUS_MARKERS = ("O/A/B", "OPEN/ACTIVE/BILLABLE", "BILLED",
-                           "OPEN/BILLABLE")
+                           "OPEN/BILLABLE",
+                           # A litigated claim is still payable - it just
+                           # prices at the open/litigated TCT rate (Allissa
+                           # 09-18, Shawn Kaufman: MZ WC 500).
+                           "IN LITIGATION")
 
 # Supplies shipped to an existing patient: no points (Patricia Elbayly,
 # April - "reps do not receive points for Electrodes Only or Wrap Only").
@@ -34,6 +38,10 @@ SUPPLY_ONLY_MARKERS = ("ELECTRODE", "WRAP ONLY")
 SELF_PAY_MARKERS = ("SELF-PAY", "SELF PAY")
 SURGICAL_MARKER = "SURGICAL"
 OPEN_LITIGATED_MARKER = "NON-SURGICAL OPEN LITIGATED"
+
+# The June 2026 point sheet is the first under which an "MZ ONLY" row with a
+# non-eligible garment from an ancillary provider is paid standard on WC.
+MZ_ONLY_NO_GARMENT_STANDARD_FROM = date(2026, 6, 1)
 
 
 def _match_type(row: FitRow) -> str:
@@ -46,11 +54,28 @@ def _match_type(row: FitRow) -> str:
         return f"{row.type} {SURGICAL_MARKER}".strip()
     if row.surgical_class == "post-surgical":
         return f"{row.type} POST-SURGICAL".strip()
+    # An insurance status that says the claim is in litigation marks the
+    # case litigated whatever the DOS column says (Shawn Kaufman, Aug 2026:
+    # "IN LITIGATION - ATTY REPRESENTED" still pays - MZ WC 500, TCT 300).
+    if "LITIGAT" in (row.insurance_status or "").upper():
+        return f"{row.type} {OPEN_LITIGATED_MARKER}".strip()
+    # Michigan Auto is "DOS or non DOS (NON-Litigated)" - the A/C code does
+    # not make it litigated, only an actual litigation status does (Allissa
+    # 09-18: Gaddy, Tuten and Akhilomhen are all 500 as MI Auto).
+    if _is_michigan_auto(row):
+        return row.type
     # A DOS of A or C marks an open or litigated, non-surgical case - and a
     # surgery outside the 30-day window is paid the same way.
     if (row.dos_code or "").strip().upper() in {"A", "C"} or row.surgical_class == "outside-window":
         return f"{row.type} {OPEN_LITIGATED_MARKER}".strip()
     return row.type
+
+
+def _is_michigan_auto(row: FitRow) -> bool:
+    text = f"{row.insurance} {row.type}".lower()
+    return ("auto" in text or "no-fault" in text or "no fault" in text) and (
+        "mi auto" in text or "mich" in text or "michigan" in text
+    )
 
 
 def _is_auto(row: FitRow) -> bool:
@@ -100,11 +125,24 @@ class PointEngine:
         # with no garment fitted is not processed through the Ancillary
         # Program at all, so the standard rules apply - for work comp rows as
         # well as auto.
+        product = (row.product or "").upper()
+        reference = row.fit_date or row.date_rx_received
+        # From the June 2026 point sheet an "MZ ONLY (GARMENT NON-ELIGIBLE)"
+        # work-comp row from an ancillary provider is standard 500 too: no
+        # wrap was sent, so the provider gets no ancillary credit (Allissa
+        # 09-18: Shane Teliha, Belinda Stiffey). Under the pre-June sheet the
+        # same row stayed ancillary (Roy Wright, Feb 2026, 200) - hence the
+        # date gate.
+        mz_only_no_garment = (
+            "MZ ONLY" in product
+            and reference is not None
+            and reference >= MZ_ONLY_NO_GARMENT_STANDARD_FROM
+        )
         if (
             is_ancillary
-            and "mz" in (row.product or "").lower()
+            and "mz" in product.lower()
             and row.garment_fitted is False
-            and (row.garment_unlisted or _is_auto(row))
+            and (row.garment_unlisted or _is_auto(row) or mz_only_no_garment)
         ):
             is_ancillary = False
             note = (

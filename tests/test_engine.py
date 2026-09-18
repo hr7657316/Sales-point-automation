@@ -498,3 +498,61 @@ def test_other_split_accounts_still_split(engine):
         rep="REYNOLD (M1-21-1) / HOUSE EAST (M1-21-0)",
     ))
     assert result.is_split is True
+
+
+# --- Allissa's August 2026 reconciliation rulings (09-18) ------------------
+
+def test_michigan_auto_tct_with_ac_code_is_still_non_litigated(engine):
+    """Gaddy / Tuten / Akhilomhen: MI Auto with DOS 'A' or 'C' is 500, the
+    A/C code does not make Michigan Auto litigated."""
+    result = evaluate(engine, make_row(
+        product="TCT-LUMBAR-30 DAY RX", insurance="AAA", type="MI AUTO",
+        dos_code="C", surgical_class="",
+    ))
+    assert result.rule_used == "TCT_MICH_AUTO_NON_LITIGATED"
+    assert result.base_points == 500
+
+
+def test_michigan_auto_in_litigation_status_drops_to_300(engine):
+    result = evaluate(engine, make_row(
+        product="TCT-LUMBAR-30 DAY RX", insurance="AAA", type="MI AUTO",
+        dos_code="C", surgical_class="", insurance_status="IN LITIGATION - ATTY REPRESENTED",
+    ))
+    assert result.rule_used == "TCT_NONSURG_WC_AUTO_LITIGATED"
+    assert result.base_points == 300
+
+
+def test_in_litigation_status_still_pays(engine):
+    """Shawn Kaufman (Thapa): 'IN LITIGATION - ATTY REPRESENTED' MZ WC = 500."""
+    result = evaluate(engine, make_row(
+        product="MZ-CERVICAL(LT) DUAL", insurance="ENCOVA", type="PA WC",
+        dos_code="C", surgical_class="", insurance_status="IN LITIGATION - ATTY REPRESENTED",
+    ))
+    assert result.rule_used == "MZ_WORK_COMP"
+    assert result.base_points == 500
+
+
+def test_mz_only_non_eligible_garment_leaves_ancillary_on_wc_from_june_2026(engine):
+    """Shane Teliha / Belinda Stiffey: MZ ONLY (GARMENT NON-ELIGIBLE) from an
+    ancillary provider on WC is standard 500 - no wrap was sent."""
+    result = evaluate(engine, make_row(
+        pro="DAVID A JANERICH DO *", product="MZ ONLY (GARMENT NON-ELIGIBLE) DUAL",
+        insurance="CAREWORKS/PO", type="PA WC", dos_code="A", surgical_class="",
+        garment_fitted=False, garment_unlisted=False, fit_date=date(2026, 8, 12),
+        date_rx_received=date(2026, 7, 31),
+    ))
+    assert result.is_ancillary is False
+    assert result.base_points == 500
+
+
+def test_mz_only_non_eligible_garment_stayed_ancillary_before_june_2026(engine):
+    """Roy Wright (Feb 2026) was correctly paid the ancillary 200 under the
+    pre-June point sheet; the rule is date-gated so history is untouched."""
+    result = evaluate(engine, make_row(
+        pro="SOME DOC MD *", product="MZ ONLY (GARMENT NON-ELIGIBLE) DUAL",
+        insurance="CAREWORKS/PO", type="PA WC", dos_code="A", surgical_class="",
+        garment_fitted=False, garment_unlisted=False, fit_date=date(2026, 2, 12),
+        date_rx_received=date(2026, 2, 1),
+    ))
+    assert result.is_ancillary is True
+    assert result.rule_used == "ANC_MZ_WORK_COMP"
