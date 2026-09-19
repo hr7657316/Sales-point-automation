@@ -556,3 +556,23 @@ def test_mz_only_non_eligible_garment_stayed_ancillary_before_june_2026(engine):
     ))
     assert result.is_ancillary is True
     assert result.rule_used == "ANC_MZ_WORK_COMP"
+
+
+def test_usdl_mz_is_always_50_even_when_type_says_wc(engine):
+    """Allissa 09-19: USDL MZ should always be 50 (Danski, Gilliam, Vontor,
+    McGowan, Mathis), whatever the TYPE column says."""
+    result = evaluate(engine, make_row(
+        product="MZ(TENS)-RT SHOULDER(LT) DUAL", insurance="USDL", type="PA WC",
+        dos_code="C", surgical_class="",
+    ))
+    assert result.rule_used == "MZ_TRICARE_USDL"
+    assert result.base_points == 50
+
+
+def test_usdl_mz_from_ancillary_provider_is_also_50(engine):
+    result = evaluate(engine, make_row(
+        pro="SOME DOC MD *", product="MZ-LUMBAR (LT) DUAL", insurance="USDL",
+        type="PA WC", dos_code="C", surgical_class="",
+    ))
+    assert result.rule_used == "ANC_MZ_TRICARE_USDL"
+    assert result.base_points == 50
