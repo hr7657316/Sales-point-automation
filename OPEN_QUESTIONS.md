@@ -1,6 +1,57 @@
 # Open questions for Allissa
 
 ---
+## AUGUST 2026 - CLOSED (Allissa 09-19): 11 of 13 reps EXACT, the other 2 differ only by pharmacy
+
+After her 09-19 corrections (USDL MZ = 50 everywhere, Richhart 0, Paul's
+stray second tab removed) her sheets vs the engine:
+
+| Rep | Engine | Allissa | | Rep | Engine | Allissa |
+|---|---|---|---|---|---|---|
+| Liput | 24,450 | 24,450 | | Janerich | 4,425 | 4,425 |
+| Lopiccolo | 18,450 | 18,450 | | Yearego | 4,150 | 4,150 |
+| Schneider | 17,725 | 17,725 | | House West | 2,450 | 2,450 |
+| Hink | 9,150 | 9,150 | | House East | 2,050 | 2,050 |
+| Miller | 8,700 | 8,700 | | Crosby | 300 | 300 |
+| Christensen | 5,550 | 5,550 | | Thapa | 12,900 | 13,000 (+100 pharmacy) |
+| | | | | Reynold | 1,000 | 1,420 (+420 pharmacy) |
+
+Rulings from the 09-19 email, all implemented:
+- **USDL MZ is ALWAYS 50**, ancillary-provider patients included
+  (`MZ_TRICARE_USDL`, `ANC_MZ_TRICARE_USDL`, priority 92).
+- **Gold Pair = TCT + MZ only.** A TT (Cold Therapy) + MZ is not a pair.
+  Engine already worked this way.
+- **NON-COMPENSABLE status pays 0** (Richhart). Engine already did.
+- **Ameen Ismael** = ancillary TCT WC Non-Surgical 200. Engine already did.
+
+### New inputs Allissa raised (not yet in the engine)
+1. **FP2A tracker ("Fit Prior to Approval").** A device fit before the
+   status is O/A/B gets logged; if the status becomes O/A/B / Billed /
+   Billed w/o Auth within 30 days of DATE DME REC'D the rep is paid on the
+   CURRENT month's sheet, with the patient listed on it. Otherwise no
+   commission (or a -250 TCT / -100 MZ-TT deduction if applicable). The
+   engine today scores such rows 0 in their own month and never revisits
+   (the Theresa Schaffer May/June case). Plan: carry rows with a
+   non-payable status and "P2A" in TYPE into a pending list, re-check
+   them against the next month's report status (or her tracker), and pay
+   them on the month they clear, labelled "FP2A" on the rep sheet.
+2. **Q3 Fit Complete report** (RSM - Quarterly Reports). Layout per tab:
+   DME / M1Sx / Pharmacy / Total summary; DME table = every fit row of the
+   quarter with its POINT TOTAL and FFW PROVIDER (Y/N); M1Sx table from
+   the Surgical Tracker; Pharmacy table = provider x month Rx counts x 5.
+   Feasible: the DME table is the engine's row output for June + July +
+   August; M1Sx and Pharmacy are copied from her two trackers (Q3
+   Pharmacy Totals sheet already holds the counts). Needs the June and
+   July 2026 Fit Reports re-downloaded and confirmation of what the tabs
+   are grouped by (Q2 has three tabs: 215,580 / 195,130 / 20,450 DME).
+3. **Pharmacy and M1Sx points on the monthly sheets** (Thapa 100 + 550
+   M1Sx, Reynold 420). Sources: Pharmacy Provider Tracker (provider ->
+   rep, 20 pts/Rx with contract, 50 without) and the Surgical Tracker.
+   Plan: a manual-adjustments input first (rep code, line, quantity), then
+   read the trackers directly.
+
+---
+
 ## AUGUST 2026 SIDE-BY-SIDE (Allissa's email 09-18) - 9 of 13 reps EXACT
 
 Her point sheets (read-only, AUGUST 2026 tabs) vs the engine after the
