@@ -3,7 +3,7 @@ from datetime import date
 from openpyxl import load_workbook
 
 from sales_points.fit_report import rows_from_grid
-from sales_points.quarterly import build_quarterly_report, score_quarter
+from sales_points.quarterly import build_quarterly_report, region_of, score_quarter
 
 GRID = [
     ["Monthly Fit Report", "", ""],
@@ -36,15 +36,25 @@ def test_quarterly_report_has_all_and_team_tabs(tmp_path):
         csv.writer(handle).writerows(GRID)
     out = build_quarterly_report([("JUNE 2026", report)], tmp_path / "q.xlsx", "Q TEST")
     wb = load_workbook(out)
-    assert wb.sheetnames == ["ALL", "MICH", "ROYLE (PITT)"]
-    ws = wb["ALL"]
-    # summary block: DME total = 300 + 550 (gold pair) + 500
-    values = {ws.cell(row=r, column=3).value: ws.cell(row=r, column=5).value for r in range(3, 7)}
-    assert values["DME"] == 300 + 550 + 500
-    assert values["Total"] == values["DME"]
-    header = [c.value for c in ws[8]]
+    assert wb.sheetnames == [
+        "MASTER-GRAND TOTAL", "MASTER - DME", "MASTER - M1SX", "MASTER - PHARMACY",
+        "EAST REGION - GRAND TOTAL", "EAST REGION - DME", "EAST REGION - M1SX",
+        "EAST REGION - PHARMACY", "WEST REGION - GRAND TOTAL", "WEST REGION - DME",
+        "WEST REGION - M1SX", "WEST REGION - PHARMACY"]
+    dme = wb["MASTER - DME"]
+    header = [c.value for c in dme[1]]
     assert header[0] == "PATIENT NAME / DOB" and header[14] == "POINT TOTAL"
-    assert ws.cell(row=9, column=14).value in {"TCT-1234", "MZ-9999"}
+    points = [dme.cell(row=r, column=15).value for r in (2, 3, 4)]
+    assert sorted(points) == [300, 500, 550]          # TCT 300, MZ 500 + Gold Pair 50, MI Auto TCT 500
+    assert dme.cell(row=2, column=14).value in {"TCT-1234", "MZ-9999", "TCT-5555"}
+    assert dme.cell(row=6, column=15).value == "=SUM(O2:O4)"   # TOTAL formula
+    gt = wb["MASTER-GRAND TOTAL"]
+    assert gt["C1"].value == "DME" and gt["E1"].value == "='MASTER - DME'!O6"
+    assert gt["E4"].value == "=SUM(E1:E3)"
+    west = wb["WEST REGION - DME"]
+    assert west.cell(row=2, column=5).value == "MICH" and west.cell(row=3, column=1).value is None
+    east = wb["EAST REGION - DME"]
+    assert [east.cell(row=r, column=5).value for r in (2, 3)] == ["ROYLE (PITT)", "ROYLE (PITT)"]
 
 
 def test_score_quarter_marks_split_and_ffw(tmp_path):
@@ -60,3 +70,9 @@ def test_score_quarter_marks_split_and_ffw(tmp_path):
     assert first["ffw"] == "Y"
     assert "Split:" in first["notes"]
     assert first["sort"][0] == date(2026, 6, 10)
+
+
+def test_region_mapping_matches_q2():
+    assert region_of("MICH") == "WEST"
+    assert region_of("ROYLE (PA)") == "EAST"
+    assert region_of("ZARNDT (IL)") == "EAST"
