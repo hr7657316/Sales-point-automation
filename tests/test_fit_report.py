@@ -201,7 +201,7 @@ FIT = datetime.date(2026, 3, 15)
         ("", "04-14-26", FIT, "surgical"),            # 30 days after: still in
         ("", "03-01-26", FIT, "surgical"),            # fit 14 days post-op
         ("", "01-10-26", FIT, "outside-window"),      # surgery too old
-        ("", "05-01-26", FIT, "outside-window"),      # surgery too far ahead
+        ("", "05-01-26", FIT, "surgical"),            # pre-op fit: Surgical however far ahead (Hospedale, Wingard)
         ("", "03-20-26", None, "surgical"),           # no fit date: fall back
         ("", "A", FIT, ""),                           # no surgery at all
         ("IMMEDIATE", "C", FIT, ""),
@@ -231,3 +231,16 @@ def test_real_date_cells_read_like_the_csv_export():
     assert _cell(datetime.datetime(2026, 8, 1, 0, 0)) == "08-01-26"  # noqa: DTZ001
     assert _cell(datetime.date(2026, 7, 20)) == "07-20-26"
     assert parse_date(_cell(datetime.datetime(2026, 8, 1))) == datetime.date(2026, 8, 1)  # noqa: DTZ001
+
+
+def test_pre_op_fit_is_surgical_however_far_out_the_surgery_is():
+    """Allissa's June 2026 sheets: Adrian Hospedale (fit 06-04, surgery
+    07-24) and Richard Wingard (fit 06-04, surgery 07-10) are Surgical."""
+    from datetime import date
+    assert surgical_kind("", "07-24-26", date(2026, 6, 4)) == "surgical"
+    assert surgical_kind("", "07-10-26", date(2026, 6, 4)) == "surgical"
+
+
+def test_post_op_fit_beyond_30_days_still_outside_window():
+    from datetime import date
+    assert surgical_kind("", "03-20-26", date(2026, 7, 7)) == "outside-window"

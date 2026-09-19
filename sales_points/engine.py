@@ -13,7 +13,7 @@ from datetime import date
 
 from .models import FitRow, Rep, RepSummary, RowResult
 from .parsing import parse_reps
-from .rules import RuleBook
+from .rules import RuleBook, is_auto_claim
 
 NOT_FIT = "NOT_FIT"
 BMV_OVERRIDE = "BMV_OVERRIDE"
@@ -72,15 +72,14 @@ def _match_type(row: FitRow) -> str:
 
 
 def _is_michigan_auto(row: FitRow) -> bool:
+    if not is_auto_claim(row.insurance, row.type):
+        return False
     text = f"{row.insurance} {row.type}".lower()
-    return ("auto" in text or "no-fault" in text or "no fault" in text) and (
-        "mi auto" in text or "mich" in text or "michigan" in text
-    )
+    return "mi auto" in text or "mich" in text or "michigan" in text
 
 
 def _is_auto(row: FitRow) -> bool:
-    text = f"{row.insurance} {row.type}".lower()
-    return "auto" in text or "no-fault" in text or "no fault" in text
+    return is_auto_claim(row.insurance, row.type)
 
 
 def _split_even(total: int, parts: int) -> list:

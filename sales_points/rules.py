@@ -108,11 +108,30 @@ class PointRule:
         )
 
     def points_for(self, insurance: str, type_: str) -> int:
-        """Ancillary rules pay different points for Work Comp vs Auto."""
-        combined = f"{insurance} {type_}"
-        if _contains_any(combined, list(AUTO_KEYWORDS)):
+        """Ancillary rules pay different points for Work Comp vs Auto.
+
+        The TYPE column decides when it says so ("PA WC", "MI AUTO"): an
+        insurer NAMED "State Auto" or "Auto-Owners" on a work-comp claim is
+        still work comp (Barry Smith, Reynold, July 2026). Only when TYPE is
+        silent does the insurer text get a say.
+        """
+        if is_auto_claim(insurance, type_):
             return self.base_points_auto
         return self.base_points_wc
+
+
+WC_KEYWORDS = ("work comp", "workers comp", "wc")
+
+
+def is_auto_claim(insurance: str, type_: str) -> bool:
+    """Auto (or no-fault) claim? TYPE column first, insurer name only as a
+    fallback - "STATE AUTO INS" on a "PA WC" claim is work comp."""
+    type_text = (type_ or "").lower()
+    if _contains_any(type_text, list(AUTO_KEYWORDS)):
+        return True
+    if _contains_any(type_text, list(WC_KEYWORDS)):
+        return False
+    return _contains_any((insurance or "").lower(), list(AUTO_KEYWORDS))
 
 
 @dataclass

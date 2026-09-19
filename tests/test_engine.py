@@ -576,3 +576,28 @@ def test_usdl_mz_from_ancillary_provider_is_also_50(engine):
     ))
     assert result.rule_used == "ANC_MZ_TRICARE_USDL"
     assert result.base_points == 50
+
+
+def test_ancillary_tct_on_auto_is_zero_from_june_2026(engine):
+    """Travus Mayle (House West, June 2026): TCT from an AMP MI '+' provider on
+    MI Auto. The ancillary table's AUTO column is 0 from the June sheet."""
+    result = evaluate(engine, make_row(
+        pro="SABIN SHAH MD +", product="TCT-LT SHOULDER-30 DAY RX DUAL",
+        insurance="PROGRESSIVE", type="MI AUTO", dos_code="A", surgical_class="",
+        fit_date=date(2026, 6, 23), date_rx_received=date(2026, 6, 10),
+    ))
+    assert result.rule_used == "ANC_TCT_AUTO"
+    assert result.total_points == 0
+    assert result.review_needed is False
+
+
+def test_insurer_named_state_auto_on_a_wc_claim_is_work_comp(engine):
+    """Barry Smith (Reynold, July 2026): INS = 'STATE AUTO INS', TYPE = 'PA WC'.
+    The TYPE column decides; ancillary MZ WC pays 300, not the Auto 0."""
+    result = evaluate(engine, make_row(
+        pro="DEAN SOTEREANOS MD/UPMC *", product="MZ-LT WRIST(LT)",
+        insurance="STATE AUTO INS", type="PA WC", dos_code="A", surgical_class="",
+        fit_date=date(2026, 7, 9), date_rx_received=date(2026, 6, 30),
+    ))
+    assert result.rule_used == "ANC_MZ_WORK_COMP"
+    assert result.total_points == 300

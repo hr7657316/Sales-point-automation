@@ -1,6 +1,77 @@
 # Open questions for Allissa
 
 ---
+## JUNE + JULY 2026 RECONCILIATION (09-19) and the Q3 report
+
+Engine vs the JUNE / JULY tabs of Allissa's sheets (read-only), after two
+rule fixes found in the process:
+
+- **Pre-op fit is Surgical however far out the surgery is.** Adrian
+  Hospedale (fit 06-04, surgery 07-24) and Richard Wingard (fit 06-04,
+  surgery 07-10) are Surgical on her June sheets. The 30-day window now
+  applies only to fits AFTER surgery (Gunter 37d / Twaroski 31d = 300).
+  No other row in Mar-Aug is affected.
+- **Insurer names containing "AUTO" are not auto claims.** Barry Smith
+  (Reynold, July): INS "STATE AUTO INS", TYPE "PA WC" was priced at the
+  ancillary AUTO rate (0). The TYPE column now decides WC vs Auto.
+- **Ancillary TCT on an Auto claim** now has a rule (100 pre-June, 0 from
+  the June sheet) instead of falling to review (Travus Mayle, June).
+
+### Result (paid reps)
+| Rep-month | Engine | Sheet | Explained by |
+|---|---|---|---|
+| Liput Jun | 13,150 | 13,150 | exact |
+| Janerich Jun | 1,000 | 1,000 | exact |
+| Yearego Jun, Reynold Jun, Crosby Jun | exact | exact | |
+| Miller Jul | 8,000 | 8,000 | exact |
+| Reynold Jul | 2,700 | 3,920 | pharmacy 1,220 only |
+| Janerich Jul | 475 | 625 | pharmacy 200; engine adds a Gold Pair (+50) |
+| Lopiccolo Jun | 17,550 | 18,750 | Twaroski 400 (confirmed sheet error), Schaffer FP2A 500, one MZ WC row (Q) |
+| Lopiccolo Jul | 23,850 | 24,050 | Hendal + Christian both ancillary per her 08-31 ruling; sheet still counts one standard |
+| Thapa Jun | 6,825 | 7,500 | Edward Lucas TCT paid 700 with status RETURNED (Q); 25 gold-on-split |
+| Thapa Jul | 9,300 | 10,000 | pharmacy 400; a Back Brace 300 the report does not show (Q) |
+| Hink Jun | 6,950 | 7,250 | one MZ WC row (Q); engine finds 5 Gold Pairs, sheet 3 |
+| Hink Jul | 9,225 | 9,500 | Fredy Roberts surgical on sheet but fit 109 days post-op (300 by her rule) |
+| Miller Jun | 6,150 | 11,050 | 9 new providers not named on the sheet (4,500, engine cannot verify); Balwinder Singh surgical on sheet but 86 days post-op |
+| Christensen Jun | 6,650 | 7,000 | her Gold Pair line shows 3 pairs but 0 total (formula) |
+| Christensen Jul | 6,900 | 7,100 | Aryss Anderson IL Auto MZ: sheet 250, her 08-31 ruling says 50 |
+| Liput Jul | 16,250 | 18,100 | 4th new provider unnamed (500); Joanne Smith / Younes Adjoudj surgical on sheet but 120 / 55 days post-op; Turquoise Apgar PATIENT DEMO paid as MZ WC (Q); Lisa Joyner USDL now 50 |
+| Schneider Jun | 2,900 | 5,350 | June transfer: the report still shows the Pittsburgh AHN providers (Alcala, Franco, Kubik, Lehman) under HOUSE EAST; her sheet credits Zach (Q: providers + date -> rep override) |
+| Schneider Jul | 11,725 | 12,100 | one TCT 300 + one MZ 50 row (Q) |
+| Yearego Jul | 6,000 | 6,600 | Shanise Smith + Nawa Musa MI Auto A/C: sheet 300 each, her 09-18 ruling 500; 5+ bonus 1,000 on sheet but no provider sent 5+ RXs |
+| Crosby Jul | 1,200 | 1,250 | Jamal Carrothers, INS "ATTORNEY LIEN": sheet 50, engine flags for review (Q) |
+
+House East / House West differ by more (sheet omits split rows, treats
+"+" providers as 0): house accounts, no commission, parked.
+
+### Questions for Allissa from June/July
+1. Schneider's June transfer: which providers moved from House East to
+   Zach, and from what date?
+2. Edward Lucas (Thapa, June): TCT status RETURNED - paid 700?
+3. Turquoise Apgar (Liput, July): PATIENT DEMO - paid 500?
+4. Thapa July Back Brace 300: which patient? Not in the July report.
+5. Jamal Carrothers (Crosby, July): "ATTORNEY LIEN" MZ - 50 or the
+   Personal Injury 250?
+6. Post-op fits beyond 30 days scored Surgical on June/July sheets
+   (Singh 86d, Roberts 109d, Smith 120d / Adjoudj 55d): confirm 300 per
+   the Gunter/Twaroski rule.
+7. Yearego July: MI Auto A/C rows at 300 and a 5+ bonus with no 5+
+   provider - re-score under the September rulings?
+8. Christensen July: Aryss Anderson IL Auto MZ 250 vs the 50 ruling.
+
+### Q3 FIT COMPLETE report - generated
+`python -m sales_points.quarterly` builds the RSM layout (tabs: ALL +
+one per TEAM; DME table in the Fit Report's own columns + POINT TOTAL,
+FFW Y/N, NOTES; M1Sx and Pharmacy tables from CSV copies of her two
+trackers). Q3 2026: 689 fit rows, DME 265,500, M1Sx 3,100, Pharmacy 5,620
+(1,124 Rx x 5) -> 274,220. Team tabs: ROYLE (PA) 107,050, ROYLE (PITT)
+97,700, ZARNDT (IL) 40,100, MICH 11,750, PITT 5,300, ROYLE (MD) 3,600. One
+row for review (Carrothers). POINT TOTAL is the full row value (split
+named in NOTES). Q2's three tabs were 215,580 / 195,130 / 20,450 - ask
+Allissa how they were grouped so the Q3 tabs can be merged the same way.
+
+---
+
 ## AUGUST 2026 - CLOSED (Allissa 09-19): 11 of 13 reps EXACT, the other 2 differ only by pharmacy
 
 After her 09-19 corrections (USDL MZ = 50 everywhere, Richhart 0, Paul's

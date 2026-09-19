@@ -111,6 +111,7 @@ exported when they change:
 - `rules/bonuses.csv` — the BONUSES & EXCEPTIONS table
 - `rules/settings.csv` — fit statuses, the ancillary markers (`*` = FFW 2.0, `+` = AMP MI), deduction rate, windows
 - `rules/ancillary_providers.csv` — read-only snapshot of Allissa's two provider trackers (65 FFW 2.0 + 5 AMP MI providers)
+- `python -m sales_points.quarterly --report "JUNE 2026=<fit report>" ... --m1sx m1sx.csv --pharmacy pharmacy.csv -o Q3.xlsx` builds the quarterly FIT COMPLETE report in the RSM layout (ALL + one tab per team).
 - `rules/rep_overrides.csv` — providers credited to one rep regardless of the REP cell (Shashank Musku MD (AHN) → Paul Lopiccolo alone, per Allissa 09-16; Affecto shows it as a split with House East). Optional effective_from / effective_to dates.
 
 To change a point value or add a product line, edit the CSV. No code change is

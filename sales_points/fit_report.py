@@ -136,12 +136,18 @@ def surgical_kind(urgency: str, dos: str = "", fit=None, rx=None,
     # before the fit - Allissa ruled him Non-Surgical.
     if fit is None:
         return "surgical"
-    if abs((fit - surgery).days) <= 30:
-        # Surgery within 30 days of this fit, either direction: Surgical.
-        # Confirmed by paid rows on both sides of the surgery date
-        # (Giordano 26d after, Hackney 1d after, Bujalski 7d before).
+    if surgery >= fit:
+        # Fit BEFORE the surgery (a pre-op fitting) is Surgical however far
+        # out the surgery is scheduled: Bujalski (7 days before), and per
+        # Allissa's June 2026 sheets Adrian Hospedale (50 days before) and
+        # Richard Wingard (36 days before). The 30-day window only limits
+        # fits AFTER surgery (Gunter 37d = 300, Twaroski 31d = 300).
         return "surgical"
-    if (fit - surgery).days > 30:
+    if (fit - surgery).days <= 30:
+        # Surgery within 30 days before this fit: Surgical (Giordano 26d
+        # after, Hackney 1d after).
+        return "surgical"
+    if (fit - surgery).days > 30:  # always true here; kept for clarity
         # This fit is late, but if the patient's FIRST device fit landed
         # within 30 days post-op the case is Post-Surgical (Plummer: MZ
         # fit 27 days post-op, TCT five days later at 32).
@@ -187,6 +193,7 @@ def rows_from_grid(grid: list) -> list:
     """Turn a raw sheet grid into FitRow objects."""
     header_index = find_header_row(grid)
     columns = build_column_index(grid[header_index])
+    header_cells = [str(c).strip() for c in grid[header_index]]
 
     def field_of(raw, field: str) -> str:
         position = columns.get(field)
@@ -248,7 +255,11 @@ def rows_from_grid(grid: list) -> list:
                 fit_status="FIT" if is_fit(patient_status) else patient_status,
                 surgical=(kind == "surgical"),
                 row_number=offset,
-                raw={},
+                # Every original column (first occurrence of a repeated
+                # header wins) so quarterly reports can echo the Fit Report.
+                raw={h: (raw[i] if i < len(raw) else "")
+                     for i, h in enumerate(header_cells)
+                     if h and h not in header_cells[:i]},
             )
         )
     return fit_rows
