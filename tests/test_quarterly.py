@@ -47,10 +47,12 @@ def test_quarterly_report_has_all_and_team_tabs(tmp_path):
     points = [dme.cell(row=r, column=15).value for r in (2, 3, 4)]
     assert sorted(points) == [300, 500, 550]          # TCT 300, MZ 500 + Gold Pair 50, MI Auto TCT 500
     assert dme.cell(row=2, column=14).value in {"TCT-1234", "MZ-9999", "TCT-5555"}
-    assert dme.cell(row=6, column=15).value == "=SUM(O2:O4)"   # TOTAL formula
+    assert dme.cell(row=6, column=15).value == "TOTAL: 1,350"   # 300 + 550 + 500
     gt = wb["MASTER-GRAND TOTAL"]
-    assert gt["C1"].value == "DME" and gt["E1"].value == "='MASTER - DME'!O6"
-    assert gt["E4"].value == "=SUM(E1:E3)"
+    assert gt["C1"].value == "DME" and gt["E1"].value == 1350
+    assert gt["E4"].value == 1350          # no M1Sx or Pharmacy input here
+    assert wb["WEST REGION - GRAND TOTAL"]["E1"].value == 500   # the MICH row only
+    assert wb["EAST REGION - GRAND TOTAL"]["E1"].value == 850
     west = wb["WEST REGION - DME"]
     assert west.cell(row=2, column=5).value == "MICH" and west.cell(row=3, column=1).value is None
     east = wb["EAST REGION - DME"]

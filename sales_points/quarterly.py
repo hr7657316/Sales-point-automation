@@ -12,7 +12,12 @@ DME      every fit row of the quarter in the Fit Report's own columns plus
          named in NOTES so a shared account appears once.
 M1SX     rows copied from the Surgical Tracker (CSV).
 PHARMACY provider x month Rx counts, 5 points each (CSV).
-GRAND TOTAL  DME / M1Sx / Pharmacy / Total, as formulas over the other tabs.
+GRAND TOTAL  DME / M1Sx / Pharmacy / Total.
+
+Totals are written as values, not formulas, exactly as Allissa's Q2
+workbook does ("TOTAL: 215,580" on the DME tab): the report is a
+regenerated snapshot, so re-running the command is the update path and
+every number is readable in any viewer.
 
 Her colours: light-blue bold headers (CFE2F3), yellow bold on an ancillary
 provider (FFFF00), orange bold on the FIT status (FF9900) and on TCT products
@@ -212,21 +217,20 @@ def write_dme(ws, records: list) -> str:
                 ws.cell(row=r, column=col).fill = REVIEW_FILL
         elif rec["points"] == 0:
             points.fill = ZERO_FILL
-    first, last = 2, max(ws.max_row, 2)
+    last = max(ws.max_row, 1)
+    points_total = sum(rec["points"] for rec in records)
     total_row = last + 2  # one blank row, then the total
-    ws.cell(row=total_row, column=14, value="TOTAL:").font = _font(bold=True)
-    ws.cell(row=total_row, column=14).alignment = Alignment(horizontal="right")
-    total = ws.cell(row=total_row, column=15,
-                    value=f"=SUM(O{first}:O{last})" if records else 0)
+    total = ws.cell(row=total_row, column=15, value=f"TOTAL: {points_total:,}")
     total.font = _font(bold=True)
     total.fill = TOTAL_FILL
-    total.number_format = "#,##0"
+    total.alignment = Alignment(horizontal="right")
     ws.cell(row=total_row, column=17,
             value=f"{len(records)} fit rows - POINT TOTAL is the full row value; "
                   "split accounts are named in NOTES").font = _font(size=9)
     _widths(ws, DME_WIDTHS)
-    ws.auto_filter.ref = f"A1:{get_column_letter(len(DME_HEADERS))}{last}"
-    return f"O{total_row}"
+    if records:
+        ws.auto_filter.ref = f"A1:{get_column_letter(len(DME_HEADERS))}{last}"
+    return points_total
 
 
 def write_m1sx(ws, rows: list) -> str:
@@ -242,15 +246,15 @@ def write_m1sx(ws, rows: list) -> str:
         ws.cell(row=r, column=8).value = _int(ws.cell(row=r, column=8).value)
         ws.cell(row=r, column=8).number_format = "#,##0"
         ws.cell(row=r, column=7).alignment = Alignment(horizontal="right")
-    first, last = 2, max(ws.max_row, 2)
+    points_total = sum(_int(row[7]) for row in rows if len(row) > 7)
     total_row = ws.max_row + 1
     ws.cell(row=total_row, column=7, value="TOTAL:").font = _font(bold=True)
-    total = ws.cell(row=total_row, column=8, value=f"=SUM(H{first}:H{last})" if rows else 0)
+    total = ws.cell(row=total_row, column=8, value=points_total)
     total.font = _font(bold=True)
     total.fill = TOTAL_FILL
     total.number_format = "#,##0"
     _widths(ws, M1SX_WIDTHS)
-    return f"H{total_row}"
+    return points_total
 
 
 def write_pharmacy(ws, header: list, rows: list) -> str:
@@ -259,38 +263,34 @@ def write_pharmacy(ws, header: list, rows: list) -> str:
     headers = ["PROVIDER:"] + [f"{m} TOTAL" for m in months] + ["TOTAL:", "NOTES:"]
     _header_row(ws, headers, fill=PHARMACY_HEADER_FILL)
     n = len(months)
+    rx_total = 0
     for row in rows:
         counts = [_int(c) for c in row[1:1 + n]] + [0] * max(0, n - len(row) + 1)
-        ws.append([row[0]] + counts)
+        rx_total += sum(counts)
+        ws.append([row[0]] + counts + [sum(counts)])
         r = ws.max_row
-        ws.cell(row=r, column=n + 2,
-                value=f"=SUM({get_column_letter(2)}{r}:{get_column_letter(n + 1)}{r})")
         for col in range(1, n + 4):
             cell = ws.cell(row=r, column=col)
             cell.font = _font()
             cell.border = GRID
             if col > 1:
                 cell.alignment = Alignment(horizontal="right")
-    first, last = 2, max(ws.max_row, 2)
+        ws.cell(row=r, column=n + 2).font = _font(bold=True)
+    points_total = rx_total * PHARMACY_POINTS_PER_RX
     total_row = ws.max_row + 1
-    total_col = get_column_letter(n + 2)
     ws.cell(row=total_row, column=n + 1, value="TOTAL:").font = _font(bold=True)
     ws.cell(row=total_row, column=n + 1).alignment = Alignment(horizontal="right")
-    rx = ws.cell(row=total_row, column=n + 2,
-                 value=f"=SUM({total_col}{first}:{total_col}{last})" if rows else 0)
-    rx.font = _font(bold=True)
-    points = ws.cell(row=total_row, column=n + 3,
-                     value=f"={total_col}{total_row}*{PHARMACY_POINTS_PER_RX}")
+    points = ws.cell(row=total_row, column=n + 2, value=points_total)
     points.font = _font(bold=True)
     points.fill = TOTAL_FILL
     points.number_format = "#,##0"
-    ws.cell(row=total_row + 1, column=n + 3,
-            value=f"Rx total x {PHARMACY_POINTS_PER_RX} = points").font = _font(size=9)
+    ws.cell(row=total_row, column=n + 3,
+            value=f"{rx_total} X {PHARMACY_POINTS_PER_RX}").font = _font(size=9)
     _widths(ws, [30] + [14] * n + [12, 28])
-    return f"{get_column_letter(n + 3)}{total_row}"
+    return points_total
 
 
-def write_grand_total(ws, dme_ref: str, m1sx_ref: str, pharmacy_ref: str,
+def write_grand_total(ws, dme_total: int, m1sx_total: int, pharmacy_total: int,
                       title: str) -> None:
     ws.column_dimensions["A"].width = 2.6
     ws.column_dimensions["B"].width = 2.0
@@ -298,11 +298,12 @@ def write_grand_total(ws, dme_ref: str, m1sx_ref: str, pharmacy_ref: str,
     ws.column_dimensions["D"].width = 2.8
     ws.column_dimensions["E"].width = 14
     ws.column_dimensions["G"].width = 60
-    for r, (label, ref) in enumerate((("DME", dme_ref), ("M1Sx", m1sx_ref),
-                                      ("Pharmacy", pharmacy_ref), ("Total", None)), start=1):
+    rows = (("DME", dme_total), ("M1Sx", m1sx_total), ("Pharmacy", pharmacy_total),
+            ("Total", dme_total + m1sx_total + pharmacy_total))
+    for r, (label, value) in enumerate(rows, start=1):
         ws.cell(row=r, column=3, value=label).font = _font(bold=True)
         ws.cell(row=r, column=4, value="-").font = _font()
-        cell = ws.cell(row=r, column=5, value=ref if ref else "=SUM(E1:E3)")
+        cell = ws.cell(row=r, column=5, value=value)
         cell.font = _font(bold=(label == "Total"))
         cell.number_format = "#,##0"
         if label == "Total":
@@ -350,13 +351,12 @@ def build_quarterly_report(reports: list, out_path: Path, title: str,
         dme_ws = wb.create_sheet(f"{prefix} - DME")
         m1_ws = wb.create_sheet(f"{prefix} - M1SX")
         ph_ws = wb.create_sheet(f"{prefix} - PHARMACY")
-        dme_ref = write_dme(dme_ws, recs)
-        m1_ref = write_m1sx(m1_ws, m1sx_for(region))
+        dme_total = write_dme(dme_ws, recs)
+        m1_total = write_m1sx(m1_ws, m1sx_for(region))
         header, rows = ph_for(region)
-        ph_ref = write_pharmacy(ph_ws, header, rows)
+        ph_total = write_pharmacy(ph_ws, header, rows)
         scope = "ALL REGIONS" if region is None else f"{region} REGION"
-        write_grand_total(gt, f"='{dme_ws.title}'!{dme_ref}", f"='{m1_ws.title}'!{m1_ref}",
-                          f"='{ph_ws.title}'!{ph_ref}", f"{title} - {scope}")
+        write_grand_total(gt, dme_total, m1_total, ph_total, f"{title} - {scope}")
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     wb.save(out_path)
