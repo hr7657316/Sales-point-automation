@@ -1,6 +1,26 @@
 # Open questions for Allissa
 
 ---
+## Q3 REPORT CORRECTIONS (Allissa 09-23) - implemented
+
+- **Region is by REP, not by team.** Her East/West list is now
+  `rules/rep_regions.csv` (House East = M1-11 and M1-21-0; Crosby, Paul,
+  Hink, Janerich, Thapa, Liput, Schneider, DeAngelo, Andrade-Vincenty,
+  Mussat, Stewart, Reynold = EAST; House West, Christensen, Miller,
+  Yearego, Long, Ricard, Routh = WEST). A split row follows its first
+  rep; a code not on the list falls back to the team and is flagged in
+  NOTES. Franco (M1-11-6) added as EAST on the engine's assumption.
+- **Honorarium deductions on the quarterly** (50% of the payout, charged
+  to the house account or rep of the region): `--deductions` CSV, shown
+  as red DEDUCTION lines under the DME total with a NET TOTAL, and netted
+  in the grand total with a note. Q3: House West -500 (June); House East
+  -1,250 (July Paul Lopiccolo + August House East).
+- **M1Sx and Pharmacy tabs confirmed correct** by Allissa.
+- Q3 after corrections: MASTER DME 263,750 net (265,500 - 1,750);
+  EAST 212,400 net (552 rows); WEST 51,350 net (137 rows). Total 272,470.
+
+---
+
 ## JUNE + JULY 2026 RECONCILIATION (09-19) and the Q3 report
 
 Engine vs the JUNE / JULY tabs of Allissa's sheets (read-only), after two

@@ -22,8 +22,11 @@ every number is readable in any viewer.
 Her colours: light-blue bold headers (CFE2F3), yellow bold on an ancillary
 provider (FFFF00), orange bold on the FIT status (FF9900) and on TCT products
 (FF6D01), green bold on a billable status (B6D7A8), bright green on every
-TOTAL (00FF00), and the FP2A "P2A" type in yellow. Region: a TEAM containing
-"MICH" is WEST, everything else EAST (Q2: West = 20,450 of 215,580).
+TOTAL (00FF00), and the FP2A "P2A" type in yellow. Region comes from the
+REP code via rules/rep_regions.csv (Allissa's East/West list, 09-23); a
+split row follows its first rep. Honorarium deductions (50% of the payout,
+charged to the house account or rep of the region) come from an optional
+CSV and are shown under the DME total and in the grand total.
 Read-only with respect to every Google Sheet: inputs are local exports.
 """
 
@@ -31,6 +34,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import re
 from pathlib import Path
 
 from openpyxl import Workbook
@@ -55,6 +59,7 @@ M1SX_HEADERS = ["PATIENT NAME", "PROVIDER", "REP", "TEAM", "PRODUCT", "VENDOR",
 M1SX_WIDTHS = [18.4, 16, 12, 15.8, 34, 14, 12, 12, 40]
 PHARMACY_POINTS_PER_RX = 5
 REGIONS = ("EAST", "WEST")
+_REP_CODE = re.compile(r"\(([A-Z]\d+(?:-\d+)*)\)")
 
 FONT = "Calibri"
 HEADER_FILL = PatternFill("solid", fgColor="CFE2F3")
@@ -76,7 +81,23 @@ def _font(bold=False, size=10, color=None):
     return Font(name=FONT, size=size, bold=bold, color=color)
 
 
-def region_of(team: str) -> str:
+def load_rep_regions(path: str | Path = "rules/rep_regions.csv") -> dict:
+    """rep code -> EAST / WEST (Allissa's list). Empty if the file is absent."""
+    path = Path(path)
+    if not path.exists():
+        return {}
+    with open(path, newline="", encoding="utf-8-sig") as handle:
+        return {row["rep_id"].strip().upper(): row["region"].strip().upper()
+                for row in csv.DictReader(handle) if row.get("rep_id", "").strip()}
+
+
+def region_of(rep: str, team: str = "", regions: dict | None = None) -> str:
+    """Region of a fit row: the first rep code's region from the rep list;
+    a code not on the list falls back to the team (MICH = WEST)."""
+    codes = _REP_CODE.findall((rep or "").upper())
+    for code in codes:
+        if regions and code in regions:
+            return regions[code]
     return "WEST" if "MICH" in (team or "").upper() else "EAST"
 
 
@@ -103,6 +124,7 @@ def score_quarter(reports: list, rules_dir: str | Path = "rules",
                   new_providers: dict | None = None) -> list:
     """reports: [(month_label, path)] -> one dict per fit row, in fit order."""
     records = []
+    regions = load_rep_regions(Path(rules_dir) / "rep_regions.csv")
     for label, path in reports:
         rows = _load_rows(path)
         engine = PointEngine(rulebook=RuleBook.load(Path(rules_dir)),
@@ -122,10 +144,13 @@ def score_quarter(reports: list, rules_dir: str | Path = "rules",
                 notes.append(result.explanation.split(".")[0])
             if result.review_needed:
                 notes.append("REVIEW")
+            codes = _REP_CODE.findall((row.rep or "").upper())
+            if codes and not any(c in regions for c in codes):
+                notes.append(f"rep code {codes[0]} not on the East/West list - region by team")
             records.append({
                 "month": label,
                 "team": _first_line(row.team) or "(no team)",
-                "region": region_of(row.team),
+                "region": region_of(row.rep, row.team, regions),
                 "cells": [_first_line(_raw(row, "PATIENT INFO")) or row.patient,
                           _raw(row, "PRO/REP/TEAM") or " ".join(
                               x for x in (row.pro, row.rep, row.team) if x),
@@ -175,8 +200,8 @@ def _widths(ws, widths: list) -> None:
         ws.column_dimensions[get_column_letter(i)].width = width
 
 
-def write_dme(ws, records: list) -> str:
-    """DME tab; returns the address of the POINT TOTAL sum cell."""
+def write_dme(ws, records: list, deductions: list | None = None) -> int:
+    """DME tab; returns the NET point total (after any deductions)."""
     _header_row(ws, DME_HEADERS)
     for rec in records:
         ws.append(rec["cells"] + [rec["points"], rec["ffw"], rec["notes"]])
@@ -227,10 +252,27 @@ def write_dme(ws, records: list) -> str:
     ws.cell(row=total_row, column=17,
             value=f"{len(records)} fit rows - POINT TOTAL is the full row value; "
                   "split accounts are named in NOTES").font = _font(size=9)
+    net = points_total
+    if deductions:
+        r = total_row + 1
+        for account, label, points in deductions:
+            net -= points
+            ws.cell(row=r, column=14, value="DEDUCTION:").font = _font(bold=True)
+            ws.cell(row=r, column=14).alignment = Alignment(horizontal="right")
+            cell = ws.cell(row=r, column=15, value=-points)
+            cell.font = _font(bold=True, color="C00000")
+            cell.number_format = "#,##0;-#,##0"
+            ws.cell(row=r, column=17, value=f"{account}: {label} "
+                    f"(50% of the honorarium payout deducted, per the point sheet)").font = _font(size=9)
+            r += 1
+        cell = ws.cell(row=r, column=15, value=f"NET TOTAL: {net:,}")
+        cell.font = _font(bold=True)
+        cell.fill = TOTAL_FILL
+        cell.alignment = Alignment(horizontal="right")
     _widths(ws, DME_WIDTHS)
     if records:
         ws.auto_filter.ref = f"A1:{get_column_letter(len(DME_HEADERS))}{last}"
-    return points_total
+    return net
 
 
 def write_m1sx(ws, rows: list) -> str:
@@ -291,7 +333,7 @@ def write_pharmacy(ws, header: list, rows: list) -> str:
 
 
 def write_grand_total(ws, dme_total: int, m1sx_total: int, pharmacy_total: int,
-                      title: str) -> None:
+                      title: str, deductions: list | None = None) -> None:
     ws.column_dimensions["A"].width = 2.6
     ws.column_dimensions["B"].width = 2.0
     ws.column_dimensions["C"].width = 14
@@ -312,14 +354,30 @@ def write_grand_total(ws, dme_total: int, m1sx_total: int, pharmacy_total: int,
     ws.cell(row=2, column=7, value="Generated by the point engine from the monthly "
             "Fit Reports; M1Sx from the Surgical Tracker; Pharmacy from the "
             "quarterly pharmacy totals.").font = _font(size=9)
+    if deductions:
+        total = sum(p for _, _, p in deductions)
+        ws.cell(row=3, column=7, value=f"DME is net of {total:,} points of honorarium "
+                "deductions: " + "; ".join(f"{a} -{p:,} ({l})" for a, l, p in deductions)
+                ).font = _font(size=9, color="C00000")
     ws.freeze_panes = "E1"
+
+
+def load_deductions(path) -> list:
+    """CSV: region,account,label,points -> [(region, account, label, points)]."""
+    out = []
+    for row in _read_csv(path)[1:] if path else []:
+        if len(row) >= 4 and _int(row[3]):
+            out.append((row[0].strip().upper(), row[1].strip(), row[2].strip(), _int(row[3])))
+    return out
 
 
 def build_quarterly_report(reports: list, out_path: Path, title: str,
                            new_providers: dict | None = None,
                            m1sx_csv=None, pharmacy_csv=None,
+                           deductions_csv=None,
                            rules_dir: str | Path = "rules") -> Path:
     records = score_quarter(reports, rules_dir, new_providers)
+    deductions = load_deductions(deductions_csv)
     m1sx = _read_csv(m1sx_csv)
     m1sx_rows = m1sx[1:] if m1sx else []
     pharmacy = _read_csv(pharmacy_csv)
@@ -351,12 +409,13 @@ def build_quarterly_report(reports: list, out_path: Path, title: str,
         dme_ws = wb.create_sheet(f"{prefix} - DME")
         m1_ws = wb.create_sheet(f"{prefix} - M1SX")
         ph_ws = wb.create_sheet(f"{prefix} - PHARMACY")
-        dme_total = write_dme(dme_ws, recs)
+        ded = [(a, l, p) for reg, a, l, p in deductions if region is None or reg == region]
+        dme_total = write_dme(dme_ws, recs, ded)
         m1_total = write_m1sx(m1_ws, m1sx_for(region))
         header, rows = ph_for(region)
         ph_total = write_pharmacy(ph_ws, header, rows)
         scope = "ALL REGIONS" if region is None else f"{region} REGION"
-        write_grand_total(gt, dme_total, m1_total, ph_total, f"{title} - {scope}")
+        write_grand_total(gt, dme_total, m1_total, ph_total, f"{title} - {scope}", ded)
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     wb.save(out_path)
@@ -382,13 +441,14 @@ def main(argv=None) -> int:
                         help='"JUNE 2026=path/to/new_providers.txt" (repeat per month)')
     parser.add_argument("--m1sx", help="CSV of the M1Sx table (Surgical Tracker rows, TEAM = EAST/WEST)")
     parser.add_argument("--pharmacy", help="CSV: PROVIDER, <month> counts..., optional REGION column")
+    parser.add_argument("--deductions", help="CSV: region,account,label,points (honorarium deductions)")
     parser.add_argument("--title", default="QUARTERLY FIT COMPLETE")
     parser.add_argument("-o", "--out", required=True)
     args = parser.parse_args(argv)
     declared = {label: load_new_providers(path) for label, path in _pairs(args.new_providers)}
     out = build_quarterly_report(_pairs(args.report), Path(args.out), args.title,
                                  new_providers=declared, m1sx_csv=args.m1sx,
-                                 pharmacy_csv=args.pharmacy)
+                                 pharmacy_csv=args.pharmacy, deductions_csv=args.deductions)
     print(f"Quarterly report: {out}")
     return 0
 
