@@ -45,14 +45,16 @@ def test_quarterly_report_has_all_and_team_tabs(tmp_path):
     header = [c.value for c in dme[1]]
     assert header[0] == "PATIENT NAME / DOB" and header[14] == "POINT TOTAL"
     points = [dme.cell(row=r, column=15).value for r in (2, 3, 4)]
-    assert sorted(points) == [300, 500, 550]          # TCT 300, MZ 500 + Gold Pair 50, MI Auto TCT 500
+    assert sorted(points) == [300, 500, 500]          # TCT 300, MZ 500 (Gold Pair excluded), MI Auto TCT 500
     assert dme.cell(row=2, column=14).value in {"TCT-1234", "MZ-9999", "TCT-5555"}
-    assert dme.cell(row=6, column=15).value == "TOTAL: 1,350"   # 300 + 550 + 500
+    assert dme.cell(row=6, column=15).value == "TOTAL: 1,300"   # 300 + 500 + 500, no Gold Pair
+    notes = " ".join(str(dme.cell(row=r, column=17).value) for r in (2, 3, 4))
+    assert "Gold Pair +50 on the rep sheet (not in the RSM total)" in notes
     gt = wb["MASTER-GRAND TOTAL"]
-    assert gt["C1"].value == "DME" and gt["E1"].value == 1350
-    assert gt["E4"].value == 1350          # no M1Sx or Pharmacy input here
+    assert gt["C1"].value == "DME" and gt["E1"].value == 1300
+    assert gt["E4"].value == 1300          # no M1Sx or Pharmacy input here
     assert wb["WEST REGION - GRAND TOTAL"]["E1"].value == 500   # HOUSE WEST (M1-21-2)
-    assert wb["EAST REGION - GRAND TOTAL"]["E1"].value == 850   # LOPICCOLO (M1-11-69)
+    assert wb["EAST REGION - GRAND TOTAL"]["E1"].value == 800   # LOPICCOLO (M1-11-69)
     west = wb["WEST REGION - DME"]
     assert west.cell(row=2, column=5).value == "MICH" and west.cell(row=3, column=1).value is None
     east = wb["EAST REGION - DME"]
@@ -71,6 +73,8 @@ def test_score_quarter_marks_split_and_ffw(tmp_path):
     first = [r for r in recs if r["cells"][13] == "TCT-1234"][0]
     assert first["ffw"] == "Y"
     assert "Split:" in first["notes"]
+    mz = [r for r in recs if r["cells"][13] == "MZ-9999"][0]
+    assert mz["points"] == 500          # no Gold Pair here: the TCT is ancillary
     assert first["sort"][0] == date(2026, 6, 10)
 
 
@@ -104,8 +108,8 @@ def test_deductions_reduce_the_region_and_master_dme(tmp_path):
                                  deductions_csv=ded)
     wb = load_workbook(out)
     assert wb["WEST REGION - GRAND TOTAL"]["E1"].value == 500 - 500
-    assert wb["EAST REGION - GRAND TOTAL"]["E1"].value == 850 - 1250
-    assert wb["MASTER-GRAND TOTAL"]["E1"].value == 1350 - 1750
+    assert wb["EAST REGION - GRAND TOTAL"]["E1"].value == 800 - 1250
+    assert wb["MASTER-GRAND TOTAL"]["E1"].value == 1300 - 1750
     west = wb["WEST REGION - DME"]
     cells = [west.cell(row=r, column=15).value for r in range(1, west.max_row + 1)]
     assert "TOTAL: 500" in cells and -500 in cells and "NET TOTAL: 0" in cells

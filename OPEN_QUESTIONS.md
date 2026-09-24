@@ -1,6 +1,24 @@
 # Open questions for Allissa
 
 ---
+## RULINGS FROM ALLISSA (09-24) - implemented, Q3 regenerated
+
+- **Jamal Carrothers (Crosby, July) = 50**, billed like a Medicare patient.
+  Rule `MZ_ATTORNEY_LIEN`: an MZ under an attorney lien with no PI /
+  slip-and-fall type pays 50. Also caught the "PERSON INJURY" typo so PI
+  rows with it still pay 250 (Riley Demas, March).
+- **Gold Pair bonuses do not roll up to the RSM quarterly totals.** The
+  quarterly DME POINT TOTAL is now the row's base value; the Gold Pair is
+  noted on the row for the rep sheet only. Q3 drops by 8,200.
+- **RETURNED after a fit keeps the points.** A RETURNED status with a DATE
+  DME REC'D on the row is scored as the fit (Edward Lucas / Thapa June,
+  700). Four such rows in Mar-Aug, none Paul's, so the validated months
+  are untouched. Thapa June now reconciles to her sheet.
+- Q3 after all corrections: MASTER DME 256,550 net (258,300 - 1,750);
+  EAST 206,400 net; WEST 50,150 net; Total 265,270. Zero rows for review.
+
+---
+
 ## Q3 REPORT CORRECTIONS (Allissa 09-23) - implemented
 
 - **Region is by REP, not by team.** Her East/West list is now

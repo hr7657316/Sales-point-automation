@@ -53,6 +53,7 @@ CATEGORY_LABELS = {
     "TCT_RR_PI_SLIPFALL_PIP": "1 TCT Railroad / Slip & Fall / Personal Injury / Auto PIP",
     "MZ_WORK_COMP": "1 MZ Work Comp",
     "MZ_GOV_AND_COMMERCIAL": "1 MZ Medicare/Auto/Tricare-USDL/Medicaid/Commercial",
+    "MZ_ATTORNEY_LIEN": "1 MZ Medicare/Auto/Tricare-USDL/Medicaid/Commercial",
     "MZ_TRICARE_USDL": "1 MZ Medicare/Auto/Tricare-USDL/Medicaid/Commercial",
     "ANC_MZ_TRICARE_USDL": "1 MZ Medicare/Auto/Tricare-USDL/Medicaid/Commercial",
     "MZ_PA_MI_FL_AUTO": "1 MZ PA, MI, FL, Auto",

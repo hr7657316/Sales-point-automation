@@ -22,8 +22,8 @@ ANC_MZ_WORK_COMP,Ancillary MZ Work Comp,MZ,yes,work comp|wc,,,,200,100,80,POINT 
 ANC_MZ_WORK_COMP,Ancillary MZ Work Comp,MZ,yes,work comp|wc,,,,300,0,80,POINT RULES,2026-06-01,
 KNEE_SCOOTER,Knee Scooter - 0 points regardless of insurance (Allissa 08-31),knee scooter,no,,,,,0,0,70,ALLISSA EMAIL 08-31,,
 GARMENT_ONLY,Garment Only - 0 points (Allissa 08-31),garment only,no,,,,,0,0,70,ALLISSA EMAIL 08-31,,
-TCT_RR_PI_SLIPFALL_PIP,TCT Railroad Claim / Slip & Fall / Personal Injury / Auto PIP - 300 (Allissa 08-31),tct,no,railroad|slip & fall|slip and fall|personal injury|pip,,,,300,300,86,ALLISSA EMAIL 08-31,,
-MZ_RR_PI_SLIPFALL_PIP,MZ Railroad Claim / Slip & Fall / Personal Injury / Auto PIP - 250 (Allissa 08-31),mz|tens,no,railroad|slip & fall|slip and fall|personal injury|pip,,,,250,250,86,ALLISSA EMAIL 08-31,,
+TCT_RR_PI_SLIPFALL_PIP,TCT Railroad Claim / Slip & Fall / Personal Injury / Auto PIP - 300 (Allissa 08-31),tct,no,railroad|slip & fall|slip and fall|personal injury|person injury|pip,,,,300,300,86,ALLISSA EMAIL 08-31,,
+MZ_RR_PI_SLIPFALL_PIP,MZ Railroad Claim / Slip & Fall / Personal Injury / Auto PIP - 250 (Allissa 08-31),mz|tens,no,railroad|slip & fall|slip and fall|personal injury|person injury|pip,,,,250,250,86,ALLISSA EMAIL 08-31,,
 KNEE_SCOOTER_ANC,Knee Scooter - 0 points regardless of insurance (Allissa 08-31),knee scooter,yes,,,,,0,0,70,ALLISSA EMAIL 08-31,,
 GARMENT_ONLY_ANC,Garment Only - 0 points (Allissa 08-31),garment only,yes,,,,,0,0,70,ALLISSA EMAIL 08-31,,
 ANC_MZ_AUTO,Ancillary MZ Auto (garment fitted) - WC\AUTO table auto column,MZ,yes,auto,,,,100,100,75,POINT RULES WC\AUTO col,,2026-05-31
@@ -33,3 +33,4 @@ MZ_TRICARE_USDL,"MZ Tricare / USDL (US Dept of Labor) is ALWAYS 50 - even when t
 ANC_MZ_TRICARE_USDL,"Ancillary-provider MZ on Tricare / USDL is ALSO 50 (Allissa 09-19: even if they are ancillary provider patients)",MZ|TENS,yes,tricare|tri-care|usdl,,,,50,50,92,ALLISSA EMAIL 09-19,,
 ANC_TCT_AUTO,"Ancillary TCT on an Auto claim - the AUTO column of the ancillary table (100 pre-June 2026, 0 from the June sheet). Travus Mayle / Sabin Shah MD +, June 2026",TCT,yes,auto|no-fault|no fault,,,,100,100,84,POINT RULES (ancillary WC\AUTO column),,2026-05-31
 ANC_TCT_AUTO,"Ancillary TCT on an Auto claim - 0 from the June 2026 sheet",TCT,yes,auto|no-fault|no fault,,,,0,0,84,POINT RULES (ancillary WC\AUTO column),2026-06-01,
+MZ_ATTORNEY_LIEN,"MZ under an attorney lien with no PI / slip-and-fall type - billed like a Medicare patient, 50 (Allissa 09-24, Jamal Carrothers / Crosby, July 2026)",MZ|TENS,no,attorney lien|attorney,,,,50,50,55,ALLISSA EMAIL 09-24,,

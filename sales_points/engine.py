@@ -254,7 +254,11 @@ class PointEngine:
         fit_values = self.rules.settings.fit_status_values
         fit_text = (row.fit_status or "").strip().lower()
         fit_incomplete = "fit" in fit_text and "incomplete" in fit_text
-        if fit_values and fit_text not in fit_values and not fit_incomplete:
+        # RETURNED after a fit keeps the fit's points (Allissa 09-24): the
+        # DATE DME REC'D on the row proves the device was fit.
+        returned_after_fit = "returned" in fit_text and row.fit_date is not None
+        if (fit_values and fit_text not in fit_values and not fit_incomplete
+                and not returned_after_fit):
             result.rule_used = NOT_FIT
             result.explanation = (
                 f"Fit status is '{row.fit_status or 'blank'}', not a Fit Complete "
@@ -262,6 +266,12 @@ class PointEngine:
             )
             result.rep_allocations = self._allocate(row, 0, result)
             return result
+
+        if "RETURNED" in (row.patient_status or "").upper():
+            result.explanation = (
+                "Status is RETURNED but the device was fit on "
+                f"{row.fit_date}; the fit still earns its points (Allissa 09-24). "
+            )
 
         # Insurance Status gate: without O/A/B, Billed or Billed without
         # Auth, the rep earns no points for the row, whatever the product.
@@ -334,7 +344,7 @@ class PointEngine:
 
         result.base_points = rule.points_for(row.insurance, type_text)
         result.rule_used = rule.rule_id
-        result.explanation = (
+        result.explanation = (result.explanation or "") + (
             f"{rule.description} ({rule.rule_id}) matched on Product='{row.product}', "
             f"Insurance='{row.insurance}', Type='{type_text}'"
             f"{', Ancillary provider (PRO contains * or +)' if result.is_ancillary else ''}"

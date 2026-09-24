@@ -104,9 +104,16 @@ def build_column_index(header: list) -> dict:
     return mapping
 
 
-def is_fit(patient_status: str) -> bool:
-    """'(8.1) FIT' counts; 'FIT/INCOMPLETE', 'RETURNED', 'PATIENT DEMO' do not."""
+def is_fit(patient_status: str, fit_date=None) -> bool:
+    """'(8.1) FIT' counts; 'FIT/INCOMPLETE' and 'PATIENT DEMO' do not.
+
+    'RETURNED' counts when the row carries a DATE DME REC'D: the patient
+    was fit at some point and the rep keeps the points even though the
+    status later changed (Allissa 09-24, Edward Lucas / Thapa, June).
+    """
     text = (patient_status or "").upper()
+    if "RETURNED" in text:
+        return fit_date is not None
     return "FIT" in text and "INCOMPLETE" not in text
 
 
@@ -252,7 +259,7 @@ def rows_from_grid(grid: list) -> list:
                 doc=get("pro"),
                 product=get("product"),
                 insurance_status=get("insurance_status"),
-                fit_status="FIT" if is_fit(patient_status) else patient_status,
+                fit_status="FIT" if is_fit(patient_status, fit_date) else patient_status,
                 surgical=(kind == "surgical"),
                 row_number=offset,
                 # Every original column (first occurrence of a repeated

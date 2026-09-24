@@ -8,8 +8,10 @@ Mirrors her Q2 2026 workbook exactly: twelve tabs -
 
 DME      every fit row of the quarter in the Fit Report's own columns plus
          POINT TOTAL, FFW PROVIDER (Y OR N) and NOTES. POINT TOTAL is the
-         row's full value (base + Gold Pair) before any split; the split is
-         named in NOTES so a shared account appears once.
+         row's base value before any split; the split is named in NOTES so
+         a shared account appears once. Gold Pair bonuses do NOT roll up to
+         the Regional Sales Managers' totals (Allissa 09-24) - they are
+         noted on the row but excluded from POINT TOTAL.
 M1SX     rows copied from the Surgical Tracker (CSV).
 PHARMACY provider x month Rx counts, 5 points each (CSV).
 GRAND TOTAL  DME / M1Sx / Pharmacy / Total.
@@ -134,7 +136,8 @@ def score_quarter(reports: list, rules_dir: str | Path = "rules",
             row = result.row
             notes = [label, CATEGORY_LABELS.get(result.rule_used, result.rule_used)]
             if result.bonus_points:
-                notes.append(f"Gold Pair +{result.bonus_points}")
+                notes.append(f"Gold Pair +{result.bonus_points} on the rep sheet "
+                             "(not in the RSM total)")
             if result.is_split:
                 notes.append("Split: " + " / ".join(
                     f"{rep.name} {pts}" for rep, pts in result.rep_allocations))
@@ -159,7 +162,8 @@ def score_quarter(reports: list, rules_dir: str | Path = "rules",
                           _raw(row, "DATE RX REC'D"), row.patient_status,
                           row.dos_code, row.product, row.insurance_status,
                           _raw(row, "DATE DME REC'D"), _raw(row, "SERIAL NUMBER")],
-                "points": result.total_points,
+                # RSM totals exclude per-patient bonuses (Gold Pair).
+                "points": result.total_points - result.bonus_points,
                 "ffw": "Y" if result.is_ancillary else "N",
                 "notes": " | ".join(n for n in notes if n),
                 "review": result.review_needed,
@@ -250,8 +254,8 @@ def write_dme(ws, records: list, deductions: list | None = None) -> int:
     total.fill = TOTAL_FILL
     total.alignment = Alignment(horizontal="right")
     ws.cell(row=total_row, column=17,
-            value=f"{len(records)} fit rows - POINT TOTAL is the full row value; "
-                  "split accounts are named in NOTES").font = _font(size=9)
+            value=f"{len(records)} fit rows - POINT TOTAL is the row's base value, "
+                  "Gold Pair excluded; split accounts are named in NOTES").font = _font(size=9)
     net = points_total
     if deductions:
         r = total_row + 1

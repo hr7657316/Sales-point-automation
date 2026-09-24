@@ -601,3 +601,39 @@ def test_insurer_named_state_auto_on_a_wc_claim_is_work_comp(engine):
     ))
     assert result.rule_used == "ANC_MZ_WORK_COMP"
     assert result.total_points == 300
+
+
+def test_returned_after_a_fit_still_earns_points(engine):
+    """Allissa 09-24 (Edward Lucas, Thapa, June): a RETURNED status with a
+    fit date on the row keeps the fit's points."""
+    result = evaluate(engine, make_row(
+        patient_status="RETURNED", fit_status="RETURNED",
+        product="TCT-RT KNEE-30 DAY RX DUAL", insurance="ONECALL/PO", type="PA WC",
+        dos_code="06-01-26", surgical_class="surgical", fit_date=date(2026, 6, 11),
+        insurance_status="OPEN/ACTIVE/BILLABLE",
+    ))
+    assert result.rule_used == "TCT_WC_SURGICAL" and result.total_points == 700
+    assert "RETURNED" in result.explanation
+
+
+def test_returned_without_a_fit_date_earns_nothing(engine):
+    result = evaluate(engine, make_row(patient_status="RETURNED", fit_status="RETURNED",
+                                       fit_date=None))
+    assert result.total_points == 0
+
+
+def test_attorney_lien_mz_is_50_like_medicare(engine):
+    """Jamal Carrothers (Crosby, July 2026): INS 'ATTORNEY LIEN', TYPE 'CALL ATTORNEY'."""
+    result = evaluate(engine, make_row(
+        product="MZ ONLY (GARMENT NON-ELIGIBLE)", insurance="ATTORNEY LIEN",
+        type="CALL ATTORNEY", dos_code="A", surgical_class="",
+    ))
+    assert result.rule_used == "MZ_ATTORNEY_LIEN" and result.base_points == 50
+
+
+def test_person_injury_typo_still_pays_the_pi_rate(engine):
+    result = evaluate(engine, make_row(
+        product="MZ-LT THIGH(LT) DUAL", insurance="CALL ATTORNEY",
+        type="PERSON INJURY", dos_code="A", surgical_class="",
+    ))
+    assert result.rule_used == "MZ_RR_PI_SLIPFALL_PIP" and result.base_points == 250
